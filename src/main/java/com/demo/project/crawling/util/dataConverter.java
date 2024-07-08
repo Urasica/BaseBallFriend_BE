@@ -18,9 +18,6 @@ public class dataConverter {
         team.setWinRate(Double.parseDouble(data.get(6)));
         team.setWinningMargin(Double.parseDouble(data.get(7)));
         team.setContinuity(data.get(8));
-        team.setOnBasePercentage(Double.parseDouble(data.get(9)));
-        team.setSluggingPercentage(Double.parseDouble(data.get(10)));
-        team.setLast10GameRecord(data.get(11));
         return team;
     }
 }

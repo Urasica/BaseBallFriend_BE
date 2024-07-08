@@ -24,7 +24,4 @@ public class teamRank {
     private double winRate;
     private double winningMargin;
     private String continuity;
-    private double onBasePercentage;
-    private double sluggingPercentage;
-    private String last10GameRecord;
 }
