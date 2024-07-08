@@ -5,26 +5,27 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.demo.project.crawling.service.teamRankService;
-import com.demo.project.crawling.util.dataConverter;
+import com.demo.project.crawling.util.teamRankConverter;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 
 @RestController
-@RequestMapping("/api/crawl")
-public class CrawlingController {
+@RequestMapping("/api/team")
+public class teamRankController {
 
-    @Autowired teamRankService teamRankService;
+    @Autowired
+    teamRankService teamRankService;
 
-    @PostMapping(value = "/team")
+    @PostMapping
     public ResponseEntity<String> updateTeams(@RequestBody List<List<String>> teamData){
-        List<teamRank> teams = teamData.stream().map(dataConverter::convertToEntity).collect(Collectors.toList());
+        List<teamRank> teams = teamData.stream().map(teamRankConverter::convertToEntity).collect(Collectors.toList());
         teamRankService.updateRank(teams);
         return ResponseEntity.ok("Teams updated successfully");
     }
 
-    @GetMapping(value = "/team")
+    @GetMapping
     public ResponseEntity<List<teamRank>> getAllTeams() {
         List<teamRank> teams = teamRankService.getAllTeams();
         return ResponseEntity.ok(teams);
