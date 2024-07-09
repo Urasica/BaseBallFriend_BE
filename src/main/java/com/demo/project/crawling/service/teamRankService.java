@@ -17,7 +17,7 @@ public class teamRankService {
         teamRankRepo.saveAll(teams);
     }
 
-    public List<teamRank> getAllTeams() {
+    public List<teamRank> getTeamRank() {
         return teamRankRepo.findAll();
     }
 }

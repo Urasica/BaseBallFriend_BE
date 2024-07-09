@@ -27,7 +27,7 @@ public class teamRankController {
 
     @GetMapping
     public ResponseEntity<List<teamRank>> getAllTeams() {
-        List<teamRank> teams = teamRankService.getAllTeams();
+        List<teamRank> teams = teamRankService.getTeamRank();
         return ResponseEntity.ok(teams);
     }
 }
