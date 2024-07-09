@@ -1,8 +1,11 @@
 package com.demo.project.crawling.util;
 
 import com.demo.project.crawling.model.pitcherRank;
+import org.springframework.stereotype.Component;
+
 import java.util.List;
 
+@Component
 public class pitcherRankConverter {
     static public pitcherRank convertToEntity(List<String> data) {
         pitcherRank pitcherRank = new pitcherRank();

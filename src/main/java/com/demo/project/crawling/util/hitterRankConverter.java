@@ -1,8 +1,11 @@
 package com.demo.project.crawling.util;
 
 import com.demo.project.crawling.model.hitterRank;
+import org.springframework.stereotype.Component;
+
 import java.util.List;
 
+@Component
 public class hitterRankConverter {
     static public hitterRank convertToEntity(List<String> data) {
         hitterRank hitterRank = new hitterRank();
