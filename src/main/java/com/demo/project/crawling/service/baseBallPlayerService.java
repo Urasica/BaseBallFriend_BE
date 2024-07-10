@@ -14,29 +14,10 @@ public class baseBallPlayerService {
     private baseBallPlayerRepo baseBallPlayerRepo;
 
     public void updateInfo(List<baseBallPlayer> baseBallPlayerList) {
-        List<baseBallPlayer> newPlayers = baseBallPlayerList.stream()
-                .filter(this::isValidPlayer)
-                .filter(player -> baseBallPlayerRepo.findByNameAndBirthday(player.getName(), player.getBirthday()).isEmpty())
-                .collect(Collectors.toList());
-        baseBallPlayerRepo.saveAll(newPlayers);
+        baseBallPlayerRepo.saveAll(baseBallPlayerList);
     }
 
     public List<baseBallPlayer> getBaseBallPlayerList() {
         return baseBallPlayerRepo.findAll();
-    }
-
-    private boolean isValidPlayer(baseBallPlayer player) {
-        return player != null &&
-                isValidString(player.getName()) &&
-                isValidString(player.getBirthday()) &&
-                isValidString(player.getPosition()) &&
-                isValidString(player.getHeight()) &&
-                isValidString(player.getWeight()) &&
-                isValidString(player.getHandedInfo()) &&
-                player.getNumber() > 0;
-    }
-
-    private boolean isValidString(String str) {
-        return str != null && !str.trim().isEmpty();
     }
 }
