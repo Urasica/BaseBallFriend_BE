@@ -23,15 +23,15 @@ public class hitterRank {
     private int atBat;           // 타수
     private int hits;            // 안타
     private int doubles;         // 2루타
-    private int Triples;         // 3루타
+    private int triples;         // 3루타
     private int homeRuns;        // 홈런
-    private int RunBattedIn;     // 타점
-    private int RunsScored;      // 득점
+    private int runBattedIn;     // 타점
+    private int runsScored;      // 득점
     private int stolenBases;     // 도루
     private int baseOnBall;      // 사사구
-    private int strikeOuts;      // 삼진
+    private float strikeOuts;    // 삼진
     private double battingAVG;   // 타율
     private double onBaseAVG;    // 출루율
     private double sluggingAVG;  // 장타율
-    private double OPS;          // OPS
+    private double ops;          // OPS
 }

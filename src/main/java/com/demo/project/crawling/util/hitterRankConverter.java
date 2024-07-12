@@ -27,7 +27,7 @@ public class hitterRankConverter {
         hitterRank.setBattingAVG(Double.parseDouble(data.get(15)));
         hitterRank.setOnBaseAVG(Double.parseDouble(data.get(16)));
         hitterRank.setSluggingAVG(Double.parseDouble(data.get(17)));
-        hitterRank.setOPS(Double.parseDouble(data.get(18)));
+        hitterRank.setOps(Double.parseDouble(data.get(18)));
         return hitterRank;
     }
 }
