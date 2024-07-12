@@ -1,0 +1,30 @@
+package com.demo.project.crawling.controller;
+
+import com.demo.project.crawling.model.schedule;
+import com.demo.project.crawling.service.scheduleService;
+import com.demo.project.crawling.util.scheduleConverter;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+@RestController
+@RequestMapping("/api/schedule")
+public class ScheduleController {
+    @Autowired
+    scheduleService service;
+
+    @PostMapping
+    public ResponseEntity<String> updateSchedule(@RequestBody List<List<String>> list){
+        List<schedule> schedules = list.stream().map(scheduleConverter::convertToEntity).collect(Collectors.toList());
+        service.updateSchedule(schedules);
+        return ResponseEntity.ok("Schedule updated");
+    }
+
+    @GetMapping
+    public ResponseEntity<List<schedule>> getSchedule(){
+        return ResponseEntity.ok(service.getAllSchedule());
+    }
+}
