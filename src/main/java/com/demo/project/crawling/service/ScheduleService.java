@@ -1,16 +1,16 @@
 package com.demo.project.crawling.service;
 
 import com.demo.project.crawling.model.schedule;
-import com.demo.project.crawling.repository.scheduleRepo;
+import com.demo.project.crawling.repository.ScheduleRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
-public class scheduleService {
+public class ScheduleService {
     @Autowired
-    private scheduleRepo scheduleRepo;
+    private ScheduleRepo scheduleRepo;
 
     public void updateSchedule(List<schedule> scheduleList) {
         scheduleRepo.deleteAll();

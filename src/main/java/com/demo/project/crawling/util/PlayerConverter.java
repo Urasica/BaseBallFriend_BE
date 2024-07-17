@@ -1,14 +1,14 @@
 package com.demo.project.crawling.util;
 
-import com.demo.project.crawling.model.baseBallPlayer;
+import com.demo.project.crawling.model.BaseBallPlayer;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 
 @Component
-public class playerConverter {
-    static public baseBallPlayer convertToEntity(List<String> data) {
-        baseBallPlayer player = new baseBallPlayer();
+public class PlayerConverter {
+    static public BaseBallPlayer convertToEntity(List<String> data) {
+        BaseBallPlayer player = new BaseBallPlayer();
         player.setTeam(data.get(0));
         player.setNumber(Integer.parseInt(data.get(1)));
         player.setName(data.get(2));

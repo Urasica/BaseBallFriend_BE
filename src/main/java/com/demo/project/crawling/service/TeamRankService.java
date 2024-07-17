@@ -1,23 +1,23 @@
 package com.demo.project.crawling.service;
 
-import com.demo.project.crawling.model.teamRank;
+import com.demo.project.crawling.model.TeamRank;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import com.demo.project.crawling.repository.teamRankRepo;
+import com.demo.project.crawling.repository.TeamRankRepo;
 
 import java.util.List;
 
 @Service
-public class teamRankService {
+public class TeamRankService {
     @Autowired
-    private teamRankRepo teamRankRepo;
+    private TeamRankRepo teamRankRepo;
 
-    public void updateRank(List<teamRank> teams) {
+    public void updateRank(List<TeamRank> teams) {
         teamRankRepo.deleteAll();
         teamRankRepo.saveAll(teams);
     }
 
-    public List<teamRank> getTeamRank() {
+    public List<TeamRank> getTeamRank() {
         return teamRankRepo.findAll();
     }
 }

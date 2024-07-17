@@ -1,8 +1,8 @@
 package com.demo.project.crawling.controller;
 
 import com.demo.project.crawling.model.schedule;
-import com.demo.project.crawling.service.scheduleService;
-import com.demo.project.crawling.util.scheduleConverter;
+import com.demo.project.crawling.service.ScheduleService;
+import com.demo.project.crawling.util.ScheduleConverter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,11 +14,11 @@ import java.util.stream.Collectors;
 @RequestMapping("/api/schedule")
 public class ScheduleController {
     @Autowired
-    scheduleService service;
+    ScheduleService service;
 
     @PostMapping
     public ResponseEntity<String> updateSchedule(@RequestBody List<List<String>> list){
-        List<schedule> schedules = list.stream().map(scheduleConverter::convertToEntity).collect(Collectors.toList());
+        List<schedule> schedules = list.stream().map(ScheduleConverter::convertToEntity).collect(Collectors.toList());
         service.updateSchedule(schedules);
         return ResponseEntity.ok("Schedule updated");
     }

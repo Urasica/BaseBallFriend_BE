@@ -11,8 +11,8 @@ import java.util.Objects;
 @Entity
 @Getter
 @Setter
-@IdClass(baseBallPlayerId.class)
-public class baseBallPlayer {
+@IdClass(BaseBallPlayerId.class)
+public class BaseBallPlayer {
     private String team;
     private int number;
     @Id
@@ -29,7 +29,7 @@ public class baseBallPlayer {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        baseBallPlayer that = (baseBallPlayer) o;
+        BaseBallPlayer that = (BaseBallPlayer) o;
         return Objects.equals(name, that.name) && Objects.equals(birthday, that.birthday);
     }
 

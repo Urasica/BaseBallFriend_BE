@@ -1,8 +1,8 @@
 package com.demo.project.crawling.controller;
 
-import com.demo.project.crawling.util.pitcherRankConverter;
-import com.demo.project.crawling.model.pitcherRank;
-import com.demo.project.crawling.service.pitcherRankService;
+import com.demo.project.crawling.util.PitcherRankConverter;
+import com.demo.project.crawling.model.PitcherRank;
+import com.demo.project.crawling.service.PitcherRankService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,19 +12,19 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/pitcher")
-public class pitcherRankController {
+public class PitcherRankController {
     @Autowired
-    private pitcherRankService pitcherRankService;
+    private PitcherRankService pitcherRankService;
 
     @PostMapping
     public ResponseEntity<String> updatePitcherRank(@RequestBody List<List<String>> pitcherRank) {
-        List<pitcherRank> pitchers = pitcherRank.stream().map(pitcherRankConverter::convertToEntity).collect(Collectors.toList());
+        List<PitcherRank> pitchers = pitcherRank.stream().map(PitcherRankConverter::convertToEntity).collect(Collectors.toList());
         pitcherRankService.updateRank(pitchers);
         return ResponseEntity.ok("Pitcher rank updated");
     }
 
     @GetMapping
-    public ResponseEntity<List<pitcherRank>> getPitcherRank() {
+    public ResponseEntity<List<PitcherRank>> getPitcherRank() {
         return ResponseEntity.ok(pitcherRankService.getPitcherRank());
     }
 }

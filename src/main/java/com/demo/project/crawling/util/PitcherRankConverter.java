@@ -1,14 +1,14 @@
 package com.demo.project.crawling.util;
 
-import com.demo.project.crawling.model.pitcherRank;
+import com.demo.project.crawling.model.PitcherRank;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 
 @Component
-public class pitcherRankConverter {
-    static public pitcherRank convertToEntity(List<String> data) {
-        pitcherRank pitcherRank = new pitcherRank();
+public class PitcherRankConverter {
+    static public PitcherRank convertToEntity(List<String> data) {
+        PitcherRank pitcherRank = new PitcherRank();
         pitcherRank.setRank(Integer.parseInt(data.get(0)));
         pitcherRank.setName(data.get(1));
         pitcherRank.setTeam(data.get(2));

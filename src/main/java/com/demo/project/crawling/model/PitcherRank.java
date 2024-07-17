@@ -10,7 +10,7 @@ import lombok.Setter;
 @Entity
 @Setter
 @Getter
-public class pitcherRank {
+public class PitcherRank {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;

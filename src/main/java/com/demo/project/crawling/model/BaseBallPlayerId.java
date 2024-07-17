@@ -5,15 +5,15 @@ import jakarta.persistence.Embeddable;
 import java.util.Objects;
 
 @Embeddable
-public class baseBallPlayerId {
+public class BaseBallPlayerId {
     private String name;
     private String birthday;
 
     // Default constructor
-    public baseBallPlayerId() {}
+    public BaseBallPlayerId() {}
 
     // Parameterized constructor
-    public baseBallPlayerId(String name, String birthday) {
+    public BaseBallPlayerId(String name, String birthday) {
         this.name = name;
         this.birthday = birthday;
     }
@@ -22,7 +22,7 @@ public class baseBallPlayerId {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        baseBallPlayerId that = (baseBallPlayerId) o;
+        BaseBallPlayerId that = (BaseBallPlayerId) o;
         return Objects.equals(name, that.name) && Objects.equals(birthday, that.birthday);
     }
 

@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 
 @Component
-public class scheduleConverter {
+public class ScheduleConverter {
     static public schedule convertToEntity(List<String> data){
         schedule schedule = new schedule();
         schedule.setDate(data.get(0));
