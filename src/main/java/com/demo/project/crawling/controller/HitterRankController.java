@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -18,7 +19,7 @@ public class HitterRankController {
     private HitterRankService hitterRankService;
 
     @PostMapping
-    public ResponseEntity<String> updateHitterRank(@RequestBody List<HitterRankDTO> hitterRank) {
+    public ResponseEntity<String> updateHitterRank(@RequestBody @Valid List<HitterRankDTO> hitterRank) {
         List<HitterRank> hitters = hitterRank.stream().map(HitterRankConverter::convertToEntity).collect(Collectors.toList());
         hitterRankService.updateRank(hitters);
         return ResponseEntity.ok("Hitter rank updated");

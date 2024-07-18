@@ -1,8 +1,6 @@
 package com.demo.project.crawling.model;
 
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import lombok.Getter;
 import lombok.Setter;
@@ -12,9 +10,6 @@ import lombok.Setter;
 @Setter
 public class HitterRank {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private long id;
-
     private int rank;            // 순위
     private String name;         // 선수 이름
     private String team;         // 팀 이름
