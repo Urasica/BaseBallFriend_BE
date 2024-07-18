@@ -1,20 +1,17 @@
 package com.demo.project.crawling.model;
 
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
 @Setter
 @Getter
+@NoArgsConstructor
 public class PitcherRank {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private long id;
-
     private int rank;       // 순위
     private String name;    // 선수 이름
     private String team;    // 팀 이름
@@ -35,4 +32,3 @@ public class PitcherRank {
     private double WHIP;
     private int QS;
 }
-

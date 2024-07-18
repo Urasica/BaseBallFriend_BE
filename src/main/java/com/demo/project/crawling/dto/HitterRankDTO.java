@@ -19,71 +19,71 @@ public class HitterRankDTO {
     private String team;
 
     @NotNull
-    @Min(0)
+    @PositiveOrZero
     private Integer games;
 
     @NotNull
-    @Min(0)
+    @PositiveOrZero
     private Integer plateAppearance;
 
     @NotNull
-    @Min(0)
+    @PositiveOrZero
     private Integer atBat;
 
     @NotNull
-    @Min(0)
+    @PositiveOrZero
     private Integer hits;
 
     @NotNull
-    @Min(0)
+    @PositiveOrZero
     private Integer doubles;
 
     @NotNull
-    @Min(0)
+    @PositiveOrZero
     private Integer triples;
 
     @NotNull
-    @Min(0)
+    @PositiveOrZero
     private Integer homeRuns;
 
     @NotNull
-    @Min(0)
+    @PositiveOrZero
     private Integer runBattedIn;
 
     @NotNull
-    @Min(0)
+    @PositiveOrZero
     private Integer runsScored;
 
     @NotNull
-    @Min(0)
+    @PositiveOrZero
     private Integer stolenBases;
 
     @NotNull
-    @Min(0)
+    @PositiveOrZero
     private Integer baseOnBall;
 
     @NotNull
-    @Min(0)
+    @PositiveOrZero
     private Integer strikeOuts;
 
     @NotNull
-    @DecimalMin(value = "0.0", inclusive = true)
-    @DecimalMax(value = "1.0", inclusive = true)
+    @DecimalMin(value = "0.0")
+    @DecimalMax(value = "1.0")
     private Double battingAVG;
 
     @NotNull
-    @DecimalMin(value = "0.0", inclusive = true)
-    @DecimalMax(value = "1.0", inclusive = true)
+    @DecimalMin(value = "0.0")
+    @DecimalMax(value = "1.0")
     private Double onBaseAVG;
 
     @NotNull
-    @DecimalMin(value = "0.0", inclusive = true)
-    @DecimalMax(value = "1.0", inclusive = true)
+    @DecimalMin(value = "0.0")
+    @DecimalMax(value = "1.0")
     private Double sluggingAVG;
 
     @NotNull
-    @DecimalMin(value = "0.0", inclusive = true)
-    @DecimalMax(value = "2.0", inclusive = true)
+    @DecimalMin(value = "0.0")
+    @DecimalMax(value = "2.0")
     private Double ops;
 }
 
