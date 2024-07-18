@@ -1,5 +1,6 @@
 package com.demo.project.crawling.controller;
 
+import com.demo.project.crawling.dto.ScheduleDTO;
 import com.demo.project.crawling.model.schedule;
 import com.demo.project.crawling.service.ScheduleService;
 import com.demo.project.crawling.util.ScheduleConverter;
@@ -17,7 +18,7 @@ public class ScheduleController {
     ScheduleService service;
 
     @PostMapping
-    public ResponseEntity<String> updateSchedule(@RequestBody List<List<String>> list){
+    public ResponseEntity<String> updateSchedule(@RequestBody List<ScheduleDTO> list){
         List<schedule> schedules = list.stream().map(ScheduleConverter::convertToEntity).collect(Collectors.toList());
         service.updateSchedule(schedules);
         return ResponseEntity.ok("Schedule updated");

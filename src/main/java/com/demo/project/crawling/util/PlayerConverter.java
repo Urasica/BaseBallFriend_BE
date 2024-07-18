@@ -1,22 +1,21 @@
 package com.demo.project.crawling.util;
 
+import com.demo.project.crawling.dto.BaseBallPlayerDTO;
 import com.demo.project.crawling.model.BaseBallPlayer;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
-
 @Component
 public class PlayerConverter {
-    static public BaseBallPlayer convertToEntity(List<String> data) {
+    static public BaseBallPlayer convertToEntity(BaseBallPlayerDTO data) {
         BaseBallPlayer player = new BaseBallPlayer();
-        player.setTeam(data.get(0));
-        player.setNumber(Integer.parseInt(data.get(1)));
-        player.setName(data.get(2));
-        player.setPosition(data.get(3));
-        player.setHeight(data.get(4));
-        player.setWeight(data.get(5));
-        player.setBirthday(data.get(6));
-        player.setHandedInfo(data.get(7));
+        player.setTeam(data.getTeam());
+        player.setNumber(data.getNumber());
+        player.setName(data.getName());
+        player.setPosition(data.getPosition());
+        player.setHeight(data.getHeight());
+        player.setWeight(data.getWeight());
+        player.setBirthday(data.getBirthday());
+        player.setHandedInfo(data.getHandedInfo());
         return player;
     }
 }

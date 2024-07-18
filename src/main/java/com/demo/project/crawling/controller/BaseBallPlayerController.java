@@ -1,5 +1,6 @@
 package com.demo.project.crawling.controller;
 
+import com.demo.project.crawling.dto.BaseBallPlayerDTO;
 import com.demo.project.crawling.model.BaseBallPlayer;
 import com.demo.project.crawling.service.BaseBallPlayerService;
 import com.demo.project.crawling.util.PlayerConverter;
@@ -18,7 +19,7 @@ public class BaseBallPlayerController {
     private BaseBallPlayerService service;
 
     @PostMapping
-    public ResponseEntity<String> insertPlayer(@RequestBody List<List<String>> playerList) {
+    public ResponseEntity<String> insertPlayer(@RequestBody List<BaseBallPlayerDTO> playerList) {
         List<BaseBallPlayer> players = playerList.stream().map(PlayerConverter::convertToEntity).collect(Collectors.toList());
         service.updateInfo(players);
         return ResponseEntity.ok("Success");

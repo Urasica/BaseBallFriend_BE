@@ -13,6 +13,7 @@ public class BaseBallPlayerService {
     private BaseBallPlayerRepo baseBallPlayerRepo;
 
     public void updateInfo(List<BaseBallPlayer> baseBallPlayerList) {
+        baseBallPlayerRepo.deleteAll();
         baseBallPlayerRepo.saveAll(baseBallPlayerList);
     }
 

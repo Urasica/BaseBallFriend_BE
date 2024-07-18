@@ -1,5 +1,6 @@
 package com.demo.project.crawling.controller;
 
+import com.demo.project.crawling.dto.TeamRankDTO;
 import com.demo.project.crawling.model.TeamRank;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -19,7 +20,7 @@ public class TeamRankController {
     TeamRankService teamRankService;
 
     @PostMapping
-    public ResponseEntity<String> updateTeams(@RequestBody List<List<String>> teamData){
+    public ResponseEntity<String> updateTeams(@RequestBody List<TeamRankDTO> teamData){
         List<TeamRank> teams = teamData.stream().map(TeamRankConverter::convertToEntity).collect(Collectors.toList());
         teamRankService.updateRank(teams);
         return ResponseEntity.ok("Teams updated successfully");

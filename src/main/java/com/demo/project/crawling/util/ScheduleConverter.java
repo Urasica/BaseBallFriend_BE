@@ -1,22 +1,21 @@
 package com.demo.project.crawling.util;
 
+import com.demo.project.crawling.dto.ScheduleDTO;
 import com.demo.project.crawling.model.schedule;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
-
 @Component
 public class ScheduleConverter {
-    static public schedule convertToEntity(List<String> data){
+    static public schedule convertToEntity(ScheduleDTO data){
         schedule schedule = new schedule();
-        schedule.setDate(data.get(0));
-        schedule.setTime(data.get(1));
-        schedule.setTeam1(data.get(2));
-        schedule.setTeam2(data.get(3));
-        schedule.setTeam1Score(data.get(4));
-        schedule.setTeam2Score(data.get(5));
-        schedule.setPlace(data.get(6));
-        schedule.setNote(data.get(7));
+        schedule.setDate(data.getDate());
+        schedule.setTime(data.getTime());
+        schedule.setTeam1(data.getTeam1());
+        schedule.setTeam2(data.getTeam2());
+        schedule.setTeam1Score(data.getTeam1Score());
+        schedule.setTeam2Score(data.getTeam2Score());
+        schedule.setPlace(data.getPlace());
+        schedule.setNote(data.getNote());
         return schedule;
     }
 }
