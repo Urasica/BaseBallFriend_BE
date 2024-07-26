@@ -17,6 +17,6 @@ public class TeamRankService {
     }
 
     public List<TeamRank> getTeamRank() {
-        return teamRankRepo.findAll();
+        return teamRankRepo.findAllByOrderByRankAsc();
     }
 }

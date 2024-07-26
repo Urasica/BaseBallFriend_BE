@@ -17,6 +17,6 @@ public class HitterRankService {
     }
 
     public List<HitterRank> getHitterRank() {
-        return hitterRankRepo.findAll();
+        return hitterRankRepo.findAllByOrderByRankAsc();
     }
 }

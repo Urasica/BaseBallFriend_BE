@@ -18,6 +18,6 @@ public class PitcherRankService {
     }
 
     public List<PitcherRank> getPitcherRank() {
-        return pitcherRankRepo.findAll();
+        return pitcherRankRepo.findAllByOrderByRankAsc();
     }
 }
