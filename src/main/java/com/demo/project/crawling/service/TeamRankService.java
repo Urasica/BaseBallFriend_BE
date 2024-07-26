@@ -13,7 +13,6 @@ public class TeamRankService {
     private TeamRankRepo teamRankRepo;
 
     public void updateRank(List<TeamRank> teams) {
-        teamRankRepo.deleteAll();
         teamRankRepo.saveAll(teams);
     }
 
