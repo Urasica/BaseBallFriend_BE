@@ -13,7 +13,6 @@ public class ScheduleService {
     private ScheduleRepo scheduleRepo;
 
     public void updateSchedule(List<schedule> scheduleList) {
-        scheduleRepo.deleteAll();
         scheduleRepo.saveAll(scheduleList);
     }
 

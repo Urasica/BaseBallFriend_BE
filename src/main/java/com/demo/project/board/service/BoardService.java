@@ -47,4 +47,10 @@ public class BoardService {
         Board board = boardRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Board not found"));
         boardRepository.delete(board);
     }
+
+    public Board upvoteBoard(Long id) {
+        Board board = boardRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Board not found"));
+        board.setUpVote(board.getUpVote() + 1);
+        return boardRepository.save(board);
+    }
 }
