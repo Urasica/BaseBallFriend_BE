@@ -4,6 +4,7 @@ import com.demo.project.board.dao.Board;
 import com.demo.project.board.dto.BoardDTO;
 import com.demo.project.board.service.BoardService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -58,5 +59,14 @@ public class BoardController {
     public Board upvoteBoard(@PathVariable Long id) {
         return boardService.upvoteBoard(id);
     }
-}
 
+    @GetMapping("/search")
+    public List<Board> searchBoards(@RequestParam String keyword) {
+        return boardService.searchBoards(keyword);
+    }
+
+    @GetMapping("/getBoardsByPage")
+    public Page<BoardDTO> getBoardsByPage(@RequestParam int page, @RequestParam int size) {
+        return boardService.getBoardsByPageAsDTO(page, size);
+    }
+}

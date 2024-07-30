@@ -13,6 +13,7 @@ public class HitterRankService {
     private HitterRankRepo hitterRankRepo;
 
     public void updateRank(List<HitterRank> hitterRankList) {
+        hitterRankRepo.deleteAll();
         hitterRankRepo.saveAll(hitterRankList);
     }
 

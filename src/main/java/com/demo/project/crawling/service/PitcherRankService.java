@@ -14,6 +14,7 @@ public class PitcherRankService {
     private PitcherRankRepo pitcherRankRepo;
 
     public void updateRank(List<PitcherRank> pitcherRankList) {
+        pitcherRankRepo.deleteAll();
         pitcherRankRepo.saveAll(pitcherRankList);
     }
 

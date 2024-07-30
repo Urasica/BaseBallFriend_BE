@@ -1,9 +1,13 @@
 package com.demo.project.board.service;
 
 import com.demo.project.board.dao.Board;
+import com.demo.project.board.dto.BoardDTO;
 import com.demo.project.board.handler.ResourceNotFoundException;
 import com.demo.project.board.repository.BoardRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -52,5 +56,24 @@ public class BoardService {
         Board board = boardRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Board not found"));
         board.setUpVote(board.getUpVote() + 1);
         return boardRepository.save(board);
+    }
+
+    public Page<BoardDTO> getBoardsByPageAsDTO(int page, int size) {
+        Page<Board> boardPage = boardRepository.findAll(PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt")));
+        return boardPage.map(board -> {
+            BoardDTO dto = new BoardDTO();
+            dto.setId(board.getId());
+            dto.setTitle(board.getTitle());
+            dto.setContent(board.getContent());
+            dto.setAuthorId(board.getAuthorId());
+            dto.setCreatedAt(board.getCreatedAt());
+            dto.setUpdatedAt(board.getUpdatedAt());
+            dto.setUpVote(board.getUpVote());
+            return dto;
+        });
+    }
+
+    public List<Board> searchBoards(String keyword) {
+        return boardRepository.searchByKeyword(keyword);
     }
 }
