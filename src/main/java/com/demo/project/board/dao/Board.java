@@ -25,4 +25,5 @@ public class Board {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private int upVote;
+    private String type;
 }

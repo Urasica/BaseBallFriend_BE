@@ -28,4 +28,6 @@ public class BoardDTO {
     private LocalDateTime updatedAt;
     @NotNull
     private int upVote;
+    @NotEmpty
+    private String type;
 }

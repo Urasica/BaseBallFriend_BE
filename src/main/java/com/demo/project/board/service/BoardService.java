@@ -7,6 +7,7 @@ import com.demo.project.board.repository.BoardRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
@@ -26,6 +27,10 @@ public class BoardService {
         return boardRepository.findAll();
     }
 
+    public List<Board> getBoardsByType(String type) {
+        return boardRepository.findByType(type);
+    }
+
     public Board getBoardById(Long id) {
         return boardRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Board not found"));
     }
@@ -36,44 +41,56 @@ public class BoardService {
         return boardRepository.save(board);
     }
 
-    public Board updateBoard(Long id, Board boardDetails) {
-        Board board = boardRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Board not found"));
-
-        board.setTitle(boardDetails.getTitle());
-        board.setContent(boardDetails.getContent());
+    public Board updateBoard(Long id, Board updatedBoard) {
+        Board board = getBoardById(id);
+        board.setTitle(updatedBoard.getTitle());
+        board.setContent(updatedBoard.getContent());
         board.setUpdatedAt(LocalDateTime.now());
-        board.setUpVote(boardDetails.getUpVote());
-
+        board.setType(updatedBoard.getType());
         return boardRepository.save(board);
     }
 
     public void deleteBoard(Long id) {
-        Board board = boardRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Board not found"));
+        Board board = getBoardById(id);
         boardRepository.delete(board);
     }
 
     public Board upvoteBoard(Long id) {
-        Board board = boardRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Board not found"));
+        Board board = getBoardById(id);
         board.setUpVote(board.getUpVote() + 1);
         return boardRepository.save(board);
     }
 
-    public Page<BoardDTO> getBoardsByPageAsDTO(int page, int size) {
-        Page<Board> boardPage = boardRepository.findAll(PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt")));
-        return boardPage.map(board -> {
-            BoardDTO dto = new BoardDTO();
-            dto.setId(board.getId());
-            dto.setTitle(board.getTitle());
-            dto.setContent(board.getContent());
-            dto.setAuthorId(board.getAuthorId());
-            dto.setCreatedAt(board.getCreatedAt());
-            dto.setUpdatedAt(board.getUpdatedAt());
-            dto.setUpVote(board.getUpVote());
-            return dto;
-        });
+    public Page<Board> searchBoards(String keyword, String type, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+        if (type == null) {
+            return boardRepository.findByTitleContainingOrContentContaining(keyword, keyword, pageable);
+        } else {
+            return boardRepository.findByTitleContainingOrContentContainingAndType(keyword, keyword, type, pageable);
+        }
     }
 
-    public List<Board> searchBoards(String keyword) {
-        return boardRepository.searchByKeyword(keyword);
+    public Page<BoardDTO> getBoardsByPageAsDTO(String type, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+        Page<Board> boardPage;
+        if (type == null) {
+            boardPage = boardRepository.findAll(pageable);
+        } else {
+            boardPage = boardRepository.findByType(type, pageable);
+        }
+        return boardPage.map(this::convertToDTO);
+    }
+
+    private BoardDTO convertToDTO(Board board) {
+        BoardDTO dto = new BoardDTO();
+        dto.setId(board.getId());
+        dto.setTitle(board.getTitle());
+        dto.setContent(board.getContent());
+        dto.setAuthorId(board.getAuthorId());
+        dto.setCreatedAt(board.getCreatedAt());
+        dto.setUpdatedAt(board.getUpdatedAt());
+        dto.setUpVote(board.getUpVote());
+        dto.setType(board.getType());
+        return dto;
     }
 }

@@ -20,8 +20,12 @@ public class BoardController {
     }
 
     @GetMapping("/getAllBoard")
-    public List<Board> getAllBoards() {
-        return boardService.getAllBoards();
+    public List<Board> getAllBoards(@RequestParam(required = false) String type) {
+        if (type == null) {
+            return boardService.getAllBoards();
+        } else {
+            return boardService.getBoardsByType(type);
+        }
     }
 
     @GetMapping("/getBoardById/{id}")
@@ -38,6 +42,7 @@ public class BoardController {
         board.setCreatedAt(dto.getCreatedAt());
         board.setUpdatedAt(dto.getUpdatedAt());
         board.setUpVote(0);
+        board.setType(dto.getType());
         return boardService.createBoard(board);
     }
 
@@ -47,6 +52,7 @@ public class BoardController {
         board.setTitle(dto.getTitle());
         board.setContent(dto.getContent());
         board.setUpdatedAt(dto.getUpdatedAt());
+        board.setType(dto.getType());
         return boardService.updateBoard(id, board);
     }
 
@@ -61,12 +67,14 @@ public class BoardController {
     }
 
     @GetMapping("/search")
-    public List<Board> searchBoards(@RequestParam String keyword) {
-        return boardService.searchBoards(keyword);
+    public Page<Board> searchBoards(@RequestParam String keyword, @RequestParam(required = false) String type, @RequestParam int page) {
+        int size = 10;
+        return boardService.searchBoards(keyword, type, page, size);
     }
 
     @GetMapping("/getBoardsByPage")
-    public Page<BoardDTO> getBoardsByPage(@RequestParam int page, @RequestParam int size) {
-        return boardService.getBoardsByPageAsDTO(page, size);
+    public Page<BoardDTO> getBoardsByPage(@RequestParam(required = false) String type, @RequestParam int page) {
+        int size = 10;
+        return boardService.getBoardsByPageAsDTO(type, page, size);
     }
 }
