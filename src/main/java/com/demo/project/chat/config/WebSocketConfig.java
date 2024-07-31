@@ -1,23 +1,17 @@
 package com.demo.project.chat.config;
 
-import com.demo.project.chat.handler.ChatHandler;
+import com.demo.project.chat.handler.ChatWebSocketHandler;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.socket.config.annotation.EnableWebSocket;
-import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
-import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry;
+import org.springframework.web.socket.config.annotation.*;
 
 @Configuration
 @EnableWebSocket
 public class WebSocketConfig implements WebSocketConfigurer {
 
-    private final ChatHandler chatHandler;
-
-    public WebSocketConfig(ChatHandler chatHandler) {
-        this.chatHandler = chatHandler;
-    }
-
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
-        registry.addHandler(chatHandler, "/ws/chat").setAllowedOrigins("*");
+        registry.addHandler(new ChatWebSocketHandler(), "/ws/chat/{roomId}")
+                .setAllowedOrigins("*");
     }
 }
+
