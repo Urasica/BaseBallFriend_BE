@@ -3,6 +3,7 @@ package com.demo.project.board.controller;
 import com.demo.project.board.dao.Board;
 import com.demo.project.board.dto.BoardDTO;
 import com.demo.project.board.service.BoardService;
+import com.demo.project.board.service.CommentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
@@ -13,10 +14,12 @@ import java.util.List;
 @RequestMapping("/api/boards")
 public class BoardController {
     private final BoardService boardService;
+    private final CommentService commentService;
 
     @Autowired
-    public BoardController(BoardService boardService) {
+    public BoardController(BoardService boardService, CommentService commentService) {
         this.boardService = boardService;
+        this.commentService = commentService;
     }
 
     @GetMapping("/getAllBoard")
@@ -30,7 +33,9 @@ public class BoardController {
 
     @GetMapping("/getBoardById/{id}")
     public Board getBoardById(@PathVariable Long id) {
-        return boardService.getBoardById(id);
+        Board board = boardService.getBoardById(id);
+        board.setComments(commentService.getCommentsByBoardId(id));
+        return board;
     }
 
     @PostMapping("/create")
