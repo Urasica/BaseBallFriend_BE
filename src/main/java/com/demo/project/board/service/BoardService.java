@@ -4,6 +4,7 @@ import com.demo.project.board.dao.Board;
 import com.demo.project.board.dto.BoardDTO;
 import com.demo.project.board.handler.ResourceNotFoundException;
 import com.demo.project.board.repository.BoardRepository;
+import com.demo.project.board.repository.CommentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -17,10 +18,12 @@ import java.util.List;
 @Service
 public class BoardService {
     private final BoardRepository boardRepository;
+    private final CommentRepository commentRepository;
 
     @Autowired
-    public BoardService(BoardRepository boardRepository) {
+    public BoardService(BoardRepository boardRepository, CommentRepository commentRepository) {
         this.boardRepository = boardRepository;
+        this.commentRepository = commentRepository;
     }
 
     public List<Board> getAllBoards() {
@@ -91,6 +94,7 @@ public class BoardService {
         dto.setUpdatedAt(board.getUpdatedAt());
         dto.setUpVote(board.getUpVote());
         dto.setType(board.getType());
+        dto.setCommentCount(commentRepository.countByBoardId(board.getId())); // 댓글 수 설정
         return dto;
     }
 }

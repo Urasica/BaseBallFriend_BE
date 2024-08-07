@@ -30,4 +30,6 @@ public class BoardDTO {
     private int upVote;
     @NotEmpty
     private String type;
+    @NotNull
+    private int commentCount;
 }

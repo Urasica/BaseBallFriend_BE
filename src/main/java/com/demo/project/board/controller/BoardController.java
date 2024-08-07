@@ -6,6 +6,7 @@ import com.demo.project.board.service.BoardService;
 import com.demo.project.board.service.CommentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -38,6 +39,7 @@ public class BoardController {
         return board;
     }
 
+    @Transactional
     @PostMapping("/create")
     public Board createBoard(@RequestBody BoardDTO dto) {
         Board board = new Board();
@@ -51,6 +53,7 @@ public class BoardController {
         return boardService.createBoard(board);
     }
 
+    @Transactional
     @PutMapping("/update/{id}")
     public Board updateBoard(@PathVariable Long id, @RequestBody BoardDTO dto) {
         Board board = boardService.getBoardById(id);
@@ -61,11 +64,13 @@ public class BoardController {
         return boardService.updateBoard(id, board);
     }
 
+    @Transactional
     @DeleteMapping("/delete/{id}")
     public void deleteBoard(@PathVariable Long id) {
         boardService.deleteBoard(id);
     }
 
+    @Transactional
     @PostMapping("/{id}/upvote")
     public Board upvoteBoard(@PathVariable Long id) {
         return boardService.upvoteBoard(id);
