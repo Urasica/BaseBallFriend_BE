@@ -64,13 +64,15 @@ public class BoardService {
         return boardRepository.save(board);
     }
 
-    public Page<Board> searchBoards(String keyword, String type, int page, int size) {
+    public Page<BoardDTO> searchBoards(String keyword, String type, int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+        Page<Board> boardPage;
         if (type == null) {
-            return boardRepository.findByTitleContainingOrContentContaining(keyword, keyword, pageable);
+            boardPage = boardRepository.findByTitleContainingOrContentContaining(keyword, keyword, pageable);
         } else {
-            return boardRepository.findByTitleContainingOrContentContainingAndType(keyword, keyword, type, pageable);
+            boardPage = boardRepository.findByTitleContainingOrContentContainingAndType(keyword, keyword, type, pageable);
         }
+        return boardPage.map(this::convertToDTO);
     }
 
     public Page<BoardDTO> getBoardsByPageAsDTO(String type, int page, int size) {

@@ -77,7 +77,7 @@ public class BoardController {
     }
 
     @GetMapping("/search")
-    public Page<Board> searchBoards(@RequestParam String keyword, @RequestParam(required = false) String type, @RequestParam int page) {
+    public Page<BoardDTO> searchBoards(@RequestParam String keyword, @RequestParam(required = false) String type, @RequestParam int page) {
         int size = 10;
         return boardService.searchBoards(keyword, type, page, size);
     }
