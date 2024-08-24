@@ -19,6 +19,7 @@ public class Inning {
     private int inningNumber;
 
     @ElementCollection
+    @Column(columnDefinition = "TEXT")
     private List<String> details = new ArrayList<>();
 
     // Many-to-One 관계 설정
