@@ -47,7 +47,7 @@
             socket.close(); // 기존 연결이 있으면 닫기
         }
 
-        socket = new WebSocket("ws://localhost:8080/ws/map/1234");
+        socket = new WebSocket("ws://35.216.0.159:8080/ws/map/1234");
 
         socket.onopen = function() {
             console.log("WebSocket connection established");
@@ -61,11 +61,16 @@
         };
 
         socket.onmessage = function(event) {
+            console.log("Received message: ", event.data); // 수신한 메시지 확인
             const data = JSON.parse(event.data);
 
             if (data.type === "user-list") {
-                console.log("Current users: ", data.users);
-                updateChatLog("Current users: " + data.users.join(", "));
+                const users = data.users; // 'data.users'로 수정
+                chatLog.innerHTML = ''; // Clear existing log
+                users.forEach(user => {
+                    // 사용자 정보 표시
+                    updateChatLog(`Nickname: ${user.nickname}, Position: (${user.x}, ${user.y})`);
+                });
             } else if (data.type === "chat") {
                 updateChatLog(`${data.nickname}: ${data.message}`);
             } else if (data.type === "user-joined") {

@@ -17,6 +17,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class MapWebSocketHandler extends TextWebSocketHandler {
 
     private final Map<String, List<WebSocketSession>> mapRooms = new ConcurrentHashMap<>();
+    private final Map<String, Map<String, Integer>> userCoordinates = new ConcurrentHashMap<>(); // 좌표 저장
     private final ObjectMapper objectMapper = new ObjectMapper(); // Jackson ObjectMapper 사용
 
     @Override
@@ -28,13 +29,18 @@ public class MapWebSocketHandler extends TextWebSocketHandler {
 
             mapRooms.computeIfAbsent(roomId, k -> new CopyOnWriteArrayList<>()).add(session);
 
-            // 이후, 사용자가 닉네임을 설정하면 사용자 목록이 업데이트됨
+            // 새로 접속한 유저에게 기존 유저 목록과 좌표 전송
+            try {
+                sendUserListToNewUser(roomId, session);
+            } catch (IOException e) {
+                System.err.println("Error sending user list to new user: " + e.getMessage());
+            }
+
             System.out.println("New connection established in map room " + roomId);
         } else {
             System.err.println("Room ID is null. Connection not added.");
         }
     }
-
 
     @Override
     protected void handleTextMessage(@NonNull WebSocketSession session, @NonNull TextMessage message) {
@@ -70,35 +76,11 @@ public class MapWebSocketHandler extends TextWebSocketHandler {
             session.getAttributes().putIfAbsent("nickname", session.getId()); // 기본 닉네임
         }
 
-        // 현재 방의 모든 클라이언트에게 새로운 사용자 목록을 전송
-        sendUserListToAllInRoom(roomId);
-    }
+        // 좌표 정보 초기화
+        String userNickname = (String) session.getAttributes().get("nickname");
+        userCoordinates.putIfAbsent(userNickname, Map.of("x", 0, "y", 0)); // 기본값 0
 
-    private void sendUserListToAllInRoom(String roomId) throws IOException {
-        List<WebSocketSession> sessions = mapRooms.get(roomId);
-        if (sessions != null) {
-            // 방에 있는 모든 클라이언트에게 사용자 목록 전송
-            List<String> userList = new CopyOnWriteArrayList<>();
-            for (WebSocketSession s : sessions) {
-                String nickname = (String) s.getAttributes().get("nickname");
-                if (nickname != null && !nickname.trim().isEmpty()) {
-                    userList.add(nickname);
-                } else {
-                    userList.add(s.getId()); // 기본 닉네임이 세션 ID인 경우
-                }
-            }
-
-            Map<String, Object> userListMessage = Map.of(
-                    "type", "user-list",
-                    "users", userList
-            );
-
-            for (WebSocketSession s : sessions) {
-                if (s.isOpen()) {
-                    s.sendMessage(new TextMessage(objectMapper.writeValueAsString(userListMessage)));
-                }
-            }
-        }
+        sendNewUserJoinedMessage(roomId, userNickname);
     }
 
     private void handleChatMessage(String roomId, Map<String, Object> jsonMessage) throws IOException {
@@ -115,9 +97,76 @@ public class MapWebSocketHandler extends TextWebSocketHandler {
         int x = (int) jsonMessage.get("x");
         int y = (int) jsonMessage.get("y");
 
+        // 좌표 정보 업데이트
+        userCoordinates.put(nickname, Map.of("x", x, "y", y));
+
         // 방 안의 모든 세션에 이동 메시지를 전달
-        broadcastToRoom(roomId, objectMapper.writeValueAsString(jsonMessage));
+        broadcastMoveUpdate(roomId, nickname, x, y);
         System.out.println(nickname + " moved to x: " + x + ", y: " + y + " in room " + roomId);
+    }
+
+    private void broadcastMoveUpdate(String roomId, String nickname, int x, int y) throws IOException {
+        Map<String, Object> moveUpdate = Map.of(
+                "type", "move",
+                "nickname", nickname,
+                "x", x,
+                "y", y
+        );
+        broadcastToRoom(roomId, objectMapper.writeValueAsString(moveUpdate));
+    }
+
+    private void sendUserListToNewUser(String roomId, WebSocketSession newSession) throws IOException {
+        List<WebSocketSession> sessions = mapRooms.get(roomId);
+        if (sessions != null && !sessions.isEmpty()) {
+            // 기존 사용자들의 닉네임과 좌표 정보를 수집
+            List<Map<String, Object>> userList = new CopyOnWriteArrayList<>();
+            for (WebSocketSession s : sessions) {
+                if (!s.equals(newSession)) {  // 새로 접속한 사용자는 제외
+                    String nickname = (String) s.getAttributes().get("nickname");
+                    if (nickname == null || nickname.trim().isEmpty()) {
+                        nickname = s.getId();  // 기본 닉네임이 세션 ID인 경우
+                    }
+
+                    // 유저 좌표 정보
+                    Map<String, Integer> coordinates = userCoordinates.getOrDefault(nickname, Map.of("x", 0, "y", 0));
+
+                    Map<String, Object> userInfo = Map.of(
+                            "nickname", nickname,
+                            "x", coordinates.get("x"),
+                            "y", coordinates.get("y")
+                    );
+                    userList.add(userInfo);
+                }
+            }
+
+            // 새로 접속한 사용자에게 사용자 목록 전송
+            Map<String, Object> userListMessage = Map.of(
+                    "type", "user-list",
+                    "users", userList
+            );
+
+            if (newSession.isOpen()) {
+                newSession.sendMessage(new TextMessage(objectMapper.writeValueAsString(userListMessage)));
+            }
+        }
+    }
+
+    private void sendNewUserJoinedMessage(String roomId, String nickname) throws IOException {
+        List<WebSocketSession> sessions = mapRooms.get(roomId);
+        if (sessions != null) {
+            // 새 사용자 접속 알림 메시지
+            Map<String, Object> newUserMessage = Map.of(
+                    "type", "user-joined",
+                    "nickname", nickname
+            );
+
+            String message = objectMapper.writeValueAsString(newUserMessage);
+            for (WebSocketSession s : sessions) {
+                if (s.isOpen() && !s.getAttributes().get("nickname").equals(nickname)) {
+                    s.sendMessage(new TextMessage(message));
+                }
+            }
+        }
     }
 
     private void broadcastToRoom(String roomId, String message) throws IOException {
@@ -158,6 +207,11 @@ public class MapWebSocketHandler extends TextWebSocketHandler {
             sessions.remove(session);
             if (sessions.isEmpty()) {
                 mapRooms.remove(roomId);
+            }
+            // 유저 좌표 제거
+            String nickname = (String) session.getAttributes().get("nickname");
+            if (nickname != null) {
+                userCoordinates.remove(nickname);
             }
         }
     }
