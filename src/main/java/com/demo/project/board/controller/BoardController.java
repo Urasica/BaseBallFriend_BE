@@ -6,6 +6,7 @@ import com.demo.project.board.service.BoardService;
 import com.demo.project.board.service.CommentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
@@ -72,8 +73,10 @@ public class BoardController {
 
     @Transactional
     @PostMapping("/{id}/upvote")
-    public Board upvoteBoard(@PathVariable Long id) {
-        return boardService.upvoteBoard(id);
+    public ResponseEntity<BoardDTO> upvoteBoard(@PathVariable Long id, @RequestParam String userNickname) {
+        Board board = boardService.upvoteBoard(id, userNickname);
+        BoardDTO boardDTO = boardService.convertToDTO(board);
+        return ResponseEntity.ok(boardDTO);
     }
 
     @GetMapping("/search")

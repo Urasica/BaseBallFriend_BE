@@ -15,6 +15,7 @@ public class WebSocketConfig implements WebSocketConfigurer {
         registry.addHandler(new ChatWebSocketHandler(), "/ws/chat/{roomId}")
                 .setAllowedOrigins("*");
 
+
         // 2D 맵용 엔드포인트
         registry.addHandler(new MapWebSocketHandler(), "/ws/map/{roomId}")
                 .setAllowedOrigins("*");

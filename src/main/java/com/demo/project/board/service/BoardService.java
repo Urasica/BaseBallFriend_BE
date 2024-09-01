@@ -1,10 +1,12 @@
 package com.demo.project.board.service;
 
 import com.demo.project.board.dao.Board;
+import com.demo.project.board.dao.Recommendation;
 import com.demo.project.board.dto.BoardDTO;
 import com.demo.project.board.handler.ResourceNotFoundException;
 import com.demo.project.board.repository.BoardRepository;
 import com.demo.project.board.repository.CommentRepository;
+import com.demo.project.board.repository.RecommendationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -19,11 +21,13 @@ import java.util.List;
 public class BoardService {
     private final BoardRepository boardRepository;
     private final CommentRepository commentRepository;
+    private final RecommendationRepository recommendationRepository;
 
     @Autowired
-    public BoardService(BoardRepository boardRepository, CommentRepository commentRepository) {
+    public BoardService(BoardRepository boardRepository, CommentRepository commentRepository, RecommendationRepository recommendationRepository) {
         this.boardRepository = boardRepository;
         this.commentRepository = commentRepository;
+        this.recommendationRepository = recommendationRepository;
     }
 
     public List<Board> getAllBoards() {
@@ -58,10 +62,28 @@ public class BoardService {
         boardRepository.delete(board);
     }
 
-    public Board upvoteBoard(Long id) {
+    public Board upvoteBoard(Long id, String userNickname) {
         Board board = getBoardById(id);
+
+        // 이미 추천한 유저인지 확인
+        boolean hasRecommended = recommendationRepository.findByBoardIdAndUserNickname(board.getId(), userNickname).isPresent();
+
+        if (hasRecommended) {
+            throw new IllegalArgumentException("You have already upvoted this board.");
+        }
+
+        // 추천 수 증가
         board.setUpVote(board.getUpVote() + 1);
-        return boardRepository.save(board);
+        boardRepository.save(board);
+
+        // 추천 기록 저장
+        Recommendation recommendation = new Recommendation();
+        recommendation.setBoard(board);
+        recommendation.setUserNickname(userNickname);
+        recommendation.setRecommendedAt(LocalDateTime.now());
+        recommendationRepository.save(recommendation);
+
+        return board;
     }
 
     public Page<BoardDTO> searchBoards(String keyword, String type, int page, int size) {
@@ -86,7 +108,7 @@ public class BoardService {
         return boardPage.map(this::convertToDTO);
     }
 
-    private BoardDTO convertToDTO(Board board) {
+    public BoardDTO convertToDTO(Board board) {
         BoardDTO dto = new BoardDTO();
         dto.setId(board.getId());
         dto.setTitle(board.getTitle());

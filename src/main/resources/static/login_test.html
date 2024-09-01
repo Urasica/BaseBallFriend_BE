@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JWT Auth Example</title>
+</head>
+<body>
+<h2>Login</h2>
+<form id="loginForm">
+    <label for="username">Username:</label>
+    <input type="text" id="username" name="username" required><br><br>
+
+    <label for="password">Password:</label>
+    <input type="password" id="password" name="password" required><br><br>
+
+    <button type="submit">Login</button>
+</form>
+
+<h2>Actions</h2>
+<button id="getAllBoardsButton" >Get All Boards</button>
+
+<div id="boardsContainer"></div>
+
+<script>
+    // 로그인 폼 처리
+    document.getElementById('loginForm').addEventListener('submit', async function(event) {
+        event.preventDefault();
+
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
+
+        // 로그인 요청
+        const response = await fetch('http://localhost:8080/auth/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                username: username,
+                password: password
+            })
+        });
+
+        if (response.ok) {
+            const token = await response.text();  // 토큰을 텍스트로 받아 저장
+            localStorage.setItem('token', token); // 토큰을 localStorage에 저장
+
+            alert('Login successful!');
+        } else {
+            alert('Login failed. Please check your credentials.');
+        }
+    });
+
+
+    // "Get All Boards" 버튼 클릭 처리
+    document.getElementById('getAllBoardsButton').addEventListener('click', async function() {
+        const token = localStorage.getItem('token');
+
+        if (!token) {
+            alert('Please login first!');
+            return;
+        }
+
+        // 인증된 요청을 보냄
+        const response = await fetch('http://localhost:8080/api/boards/getAllBoard', {
+            method: 'GET',
+            headers: {
+                'Authorization': 'Bearer ' + token // Authorization 헤더에 JWT 토큰 추가
+            }
+        });
+
+        if (response.ok) {
+            const boards = await response.json();
+            const boardsContainer = document.getElementById('boardsContainer');
+
+            // 결과를 화면에 표시
+            boardsContainer.innerHTML = '<h3>Boards:</h3>' + boards.map(board =>
+                `<p>${board.title} - ${board.content}</p>`
+            ).join('');
+        } else {
+            alert('Failed to fetch boards. Please check your authorization.');
+        }
+    });
+</script>
+</body>
+</html>
