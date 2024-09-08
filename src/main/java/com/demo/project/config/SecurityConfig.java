@@ -34,11 +34,9 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/auth/**").permitAll()
-                        .requestMatchers("/private/**").authenticated()  // 특정 경로는 로그인 필요
+                        // 특정 경로는 로그인 필요
                         .requestMatchers("/api/boards/create", "/api/boards/update/", "/api/boards/delete/", "/api/boards/{id}/upvote").authenticated()
                         .requestMatchers("/api/comments/create", "/api/comments/delete/").authenticated()
-                        .requestMatchers("/ws/chat/**").authenticated()
-                        .requestMatchers("/ws/map/**").authenticated()
                         .anyRequest().permitAll()  // 나머지 요청은 모두 허용 (로그인 불필요)
                 )
                 .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);

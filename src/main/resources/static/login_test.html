@@ -17,8 +17,26 @@
     <button type="submit">Login</button>
 </form>
 
+<h2>Create Board</h2>
+<form id="createBoardForm">
+    <label for="title">Title:</label>
+    <input type="text" id="title" name="title" required><br><br>
+
+    <label for="content">Content:</label>
+    <textarea id="content" name="content" required></textarea><br><br>
+
+    <label for="authorId">Author ID:</label>
+    <input type="text" id="authorId" name="authorId" required><br><br>
+
+    <label for="type">Type:</label>
+    <input type="text" id="type" name="type" required><br><br>
+
+    <button type="submit">Create Board</button>
+</form>
+
 <h2>Actions</h2>
-<button id="getAllBoardsButton" >Get All Boards</button>
+<button id="getAllBoardsButton">Get All Boards</button>
+<button id="checkLoginStatusButton">Check Login Status</button>
 
 <div id="boardsContainer"></div>
 
@@ -43,43 +61,104 @@
         });
 
         if (response.ok) {
-            const token = await response.text();  // 토큰을 텍스트로 받아 저장
+            const data = await response.json();  // JSON으로 응답을 파싱
+            const token = data.token;  // JSON에서 token 필드 추출
             localStorage.setItem('token', token); // 토큰을 localStorage에 저장
-
+            console.log(token);
             alert('Login successful!');
         } else {
             alert('Login failed. Please check your credentials.');
         }
     });
 
+    // 게시글 작성 폼 처리
+    document.getElementById('createBoardForm').addEventListener('submit', async function(event) {
+        event.preventDefault();
 
-    // "Get All Boards" 버튼 클릭 처리
-    document.getElementById('getAllBoardsButton').addEventListener('click', async function() {
         const token = localStorage.getItem('token');
-
         if (!token) {
             alert('Please login first!');
             return;
         }
 
-        // 인증된 요청을 보냄
-        const response = await fetch('http://localhost:8080/api/boards/getAllBoard', {
-            method: 'GET',
+        const title = document.getElementById('title').value;
+        const content = document.getElementById('content').value;
+        const authorId = document.getElementById('authorId').value;
+        const type = document.getElementById('type').value;
+
+        const id = 0;
+        const createdAt = new Date().toISOString();
+        const updatedAt = createdAt;
+        const upVote = 0;
+        const commentCount = 0;
+
+        // 게시글 생성 요청
+        const response = await fetch('http://localhost:8080/api/boards/create', {
+            method: 'POST',
             headers: {
-                'Authorization': 'Bearer ' + token // Authorization 헤더에 JWT 토큰 추가
-            }
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + token
+            },
+            body: JSON.stringify({
+                id: id,
+                title: title,
+                content: content,
+                authorId: authorId,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                upVote: upVote,
+                type: type,
+                commentCount: commentCount
+            })
+        });
+
+        if (response.ok) {
+            alert('Board created successfully!');
+        } else {
+            const errorMessage = await response.text();
+            alert('Failed to create board: ' + errorMessage);
+        }
+    });
+
+    // "Get All Boards" 버튼 클릭 처리
+    document.getElementById('getAllBoardsButton').addEventListener('click', async function() {
+        const response = await fetch('http://localhost:8080/api/boards/getAllBoard', {
+            method: 'GET'
         });
 
         if (response.ok) {
             const boards = await response.json();
             const boardsContainer = document.getElementById('boardsContainer');
 
-            // 결과를 화면에 표시
             boardsContainer.innerHTML = '<h3>Boards:</h3>' + boards.map(board =>
                 `<p>${board.title} - ${board.content}</p>`
             ).join('');
         } else {
             alert('Failed to fetch boards. Please check your authorization.');
+        }
+    });
+
+    document.getElementById('checkLoginStatusButton').addEventListener('click', async function() {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            alert('You are not logged in.');
+            return;
+        }
+
+        const response = await fetch('http://localhost:8080/auth/check-token', {
+            method: 'GET',
+            headers: {
+                'Authorization': 'Bearer ' + token
+            }
+        });
+
+        if (response.ok) {
+            // 서버에서 어떤 메시지가 오는지 확인하고 처리
+            const result = await response.text(); // 응답 본문을 텍스트로 받음
+            alert(result); // 서버에서 온 메시지를 alert로 출력
+        } else {
+            // 200이 아닌 응답 처리
+            alert('Your token is invalid or expired. Please login again.');
         }
     });
 </script>
