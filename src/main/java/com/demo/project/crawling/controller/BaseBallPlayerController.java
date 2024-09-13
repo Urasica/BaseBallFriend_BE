@@ -29,4 +29,10 @@ public class BaseBallPlayerController {
     public ResponseEntity<List<BaseBallPlayer>> getPlayers() {
         return ResponseEntity.ok(service.getBaseBallPlayerList());
     }
+
+    @GetMapping("/team")
+    public ResponseEntity<List<BaseBallPlayer>> getPlayersByTeam(@RequestParam String team) {
+        List<BaseBallPlayer> players = service.getBaseBallPlayerListByTeam(team);
+        return ResponseEntity.ok(players);
+    }
 }

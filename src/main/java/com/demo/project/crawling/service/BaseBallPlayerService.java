@@ -19,4 +19,8 @@ public class BaseBallPlayerService {
     public List<BaseBallPlayer> getBaseBallPlayerList() {
         return baseBallPlayerRepo.findAll();
     }
+
+    public List<BaseBallPlayer> getBaseBallPlayerListByTeam(String team) {
+        return baseBallPlayerRepo.findByTeam(team);
+    }
 }

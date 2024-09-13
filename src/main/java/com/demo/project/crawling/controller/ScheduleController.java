@@ -28,4 +28,9 @@ public class ScheduleController {
     public ResponseEntity<List<schedule>> getSchedule(){
         return ResponseEntity.ok(service.getAllSchedule());
     }
+
+    @GetMapping("/today")
+    public ResponseEntity<List<schedule>> getTodaySchedule() {
+        return ResponseEntity.ok(service.getTodaySchedule());
+    }
 }
