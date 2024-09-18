@@ -24,15 +24,7 @@ public class ScheduleService {
         return scheduleRepo.findAll();
     }
 
-    // 오늘 날짜의 일정을 필터링하여 반환하는 메서드 추가
-    public List<schedule> getTodaySchedule() {
-        // 서버의 현재 날짜를 "MM.dd(요일)" 형식으로 변환
-        LocalDate today = LocalDate.now();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM.dd(E)", Locale.KOREA);  // E는 요일을 나타냄
-        String todayFormatted = today.format(formatter);
-
-        return scheduleRepo.findAll().stream()
-                .filter(s -> s.getDate().equals(todayFormatted)) // 오늘 날짜와 일치하는 일정만 필터링
-                .collect(Collectors.toList());
+    public List<schedule> getScheduleByTeamsAndDate(String teamName1, String teamName2, String matchDate) {
+        return scheduleRepo.findByTeam1AndTeam2AndDate(teamName1, teamName2, matchDate);
     }
 }

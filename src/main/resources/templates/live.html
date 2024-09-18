@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>야구친구</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            padding-bottom: 60px;
+        }
+        header {
+            background-color: #333333;
+            color: white;
+            padding: 10px 0;
+        }
+        footer {
+            background-color: #f8f9fa;
+            color: #6c757d;
+            padding: 10px 0;
+            text-align: center;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            left: 0;
+        }
+        .navbar-brand {
+            font-size: 1.5rem;
+        }
+        .match-summary {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .inning-selector {
+            margin-bottom: 20px;
+            display: flex;
+            overflow-x: auto;
+            white-space: nowrap;
+            padding: 5px 0;
+            position: sticky;
+            top: 0; 
+            background-color: white;
+            z-index: 1000;
+        }
+        .inning-button {
+            font-size: 0.875rem;
+            padding: 5px 10px;
+            margin: 0 1px;
+            background: royalblue;
+        }
+        .team-logo {
+            width: 60px;
+            height: 60px;
+            vertical-align: middle;
+            margin: 10px;
+        }
+        .inning-content {
+            border: 1px solid #ddd;
+            padding: 10px;
+            border-radius: 5px;
+            background-color: #f8f9fa;
+        }
+        .auth-button {
+            color: peru;
+            margin-right: 10px;
+        }
+        .auth-button-logout {
+            border-color: peru;
+        }
+    </style>
+</head>
+<body>
+<header>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/">야구친구</a>
+            <div class="nav-item align-items-center" id="auth-nickname"></div>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">홈</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/board">게시판</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/rank">순위</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/team">팀 정보</a>
+                    </li>
+                    <li class="nav-item d-flex align-items-center" id="auth-section"></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+</header>
+
+<div class="container mt-4">
+    <div class="match-summary">
+        <h2 id="match-title">팀1 vs 팀2</h2>
+        <h3 id="match-score">팀1 스코어 - 팀2 스코어</h3>
+    </div>
+
+    <div class="inning-selector" id="inning-selector">
+        <!-- Buttons will be dynamically populated -->
+    </div>
+
+    <div id="inning-content" class="inning-content">
+        <p>이닝 내용을 선택해주세요.</p>
+    </div>
+</div>
+
+<footer>
+    <div class="container">
+        <p>&copy; 야구친구. 2024 한성공학경진대회 출품작</p>
+    </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const teamName1 = urlParams.get('teamName1');
+        const teamName2 = urlParams.get('teamName2');
+        const matchDate = urlParams.get('matchDate');
+
+        const matchTitle = document.getElementById('match-title');
+        const matchScore = document.getElementById('match-score');
+        const inningSelector = document.getElementById('inning-selector');
+        const inningContent = document.getElementById('inning-content');
+
+        console.log(`Fetching data for ${teamName1}, ${teamName2}, ${matchDate}`);
+
+        // Fetch match summary and inning details in parallel
+        Promise.all([
+            fetch(`/api/schedule/match?teamName1=${encodeURIComponent(teamName1)}&teamName2=${encodeURIComponent(teamName2)}&matchDate=${encodeURIComponent(matchDate)}`),
+            fetch(`/api/match/get?teamName=${encodeURIComponent(teamName1)}&matchDate=${encodeURIComponent(matchDate)}`)
+        ])
+            .then(responses => {
+                // Check if both responses are OK
+                if (responses[0].ok && responses[1].ok) {
+                    return Promise.all(responses.map(response => response.json()));
+                } else {
+                    throw new Error('One or more responses were not OK');
+                }
+            })
+            .then(([summaryData, inningData]) => {
+                console.log('Summary Data:', summaryData);
+                console.log('Inning Data:', inningData);
+
+                // Populate match summary
+                if (summaryData && Array.isArray(summaryData) && summaryData.length > 0) {
+                    const data = summaryData[0];
+                    matchTitle.innerHTML = `<img src="/image/${data.team1}.png" class="team-logo" alt="${data.team1} 로고"> ${data.team1} vs ${data.team2} <img src="/image/${data.team2}.png" class="team-logo" alt="${data.team2} 로고">`;
+                    matchScore.textContent = `${data.team1Score || '0'} - ${data.team2Score || '0'}`;
+                } else {
+                    matchTitle.textContent = '정보 없음';
+                    matchScore.textContent = '정보 없음';
+                }
+
+                // Populate inning buttons
+                if (inningData && inningData.innings) {
+                    inningSelector.innerHTML = '';
+                    inningData.innings.slice().reverse().forEach((inning, index) => {
+                        const button = document.createElement('button');
+                        button.className = 'btn btn-dark inning-button';
+                        button.textContent = `${inning.inningNumber} 회`;
+                        button.dataset.inningNumber = inning.inningNumber;
+                        if (button.textContent === `1 회`) {
+                            button.classList.add('active');
+                        }
+                        inningSelector.appendChild(button);
+                    });
+
+                    if (inningData.innings.length > 0) {
+                        const initialInning = inningData.innings[inningData.innings.length - 1];
+                        inningContent.innerHTML = initialInning.details.map(detail => detail.replace(/\|/g, '<br>')).join('<hr>');
+                    }
+
+                    // Event listener for inning buttons
+                    inningSelector.addEventListener('click', function(event) {
+                        if (event.target && event.target.matches('.inning-button')) {
+                            // Remove active class from all buttons
+                            const buttons = inningSelector.querySelectorAll('.inning-button');
+                            buttons.forEach(btn => btn.classList.remove('active'));
+
+                            // Add active class to the clicked button
+                            event.target.classList.add('active');
+
+                            // Update inning content
+                            const selectedInningNumber = event.target.dataset.inningNumber;
+                            const inningDetails = inningData.innings.find(inning => inning.inningNumber == selectedInningNumber);
+                            inningContent.innerHTML = inningDetails ? inningDetails.details.map(detail => detail.replace(/\|/g, '<br>')).join('<hr>') : '<p>내용이 없습니다.</p>';
+                        }
+                    });
+                } else {
+                    inningSelector.innerHTML = '<p>이닝 정보 없음</p>';
+                    inningContent.innerHTML = '<p>이닝 정보가 없습니다.</p>';
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching match data:', error);
+                matchTitle.textContent = '정보 없음';
+                matchScore.textContent = '정보 없음';
+                inningSelector.innerHTML = '<p>이닝 정보 없음</p>';
+                inningContent.innerHTML = '<p>데이터를 불러오는 데 실패했습니다.</p>';
+            });
+    });
+</script>
+<script src="/auth.js"></script>
+</body>
+</html>

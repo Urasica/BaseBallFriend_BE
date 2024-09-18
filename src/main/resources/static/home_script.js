@@ -46,7 +46,7 @@ document.addEventListener('DOMContentLoaded', function() {
         </thead>
         <tbody>
           ${filteredGames.length > 0 ? filteredGames.map(game => `
-            <tr>
+            <tr onclick="handleRowClick('${game.team1}', '${game.team2}', '${formattedDate}')">
               <td>${game.time}</td>
               <td class="team">
                 <img src="/image/${game.team1}.png" class="team-logo" alt="${game.team1} 로고">
@@ -70,6 +70,10 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('schedule-table').innerHTML = table;
         document.getElementById('current-date').textContent = formattedDate;
     }
+
+    window.handleRowClick = function(teamName1, teamName2, matchDate) {
+        window.location.href = `/live?teamName1=${encodeURIComponent(teamName1)}&teamName2=${encodeURIComponent(teamName2)}&matchDate=${encodeURIComponent(matchDate)}`;
+    };
 
     document.getElementById('prev-day').addEventListener('click', function() {
         currentDate.setDate(currentDate.getDate() - 1);

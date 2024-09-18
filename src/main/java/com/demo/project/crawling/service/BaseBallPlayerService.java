@@ -21,6 +21,6 @@ public class BaseBallPlayerService {
     }
 
     public List<BaseBallPlayer> getBaseBallPlayerListByTeam(String team) {
-        return baseBallPlayerRepo.findByTeam(team);
+        return baseBallPlayerRepo.findByTeamOrderByPositionDesc(team);
     }
 }

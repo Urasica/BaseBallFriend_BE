@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>야구친구</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            padding-bottom: 60px;
+        }
+        header {
+            background-color: #333333;
+            color: white;
+            padding: 10px 0;
+        }
+        footer {
+            background-color: #f8f9fa;
+            color: #6c757d;
+            padding: 10px 0;
+            text-align: center;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            left: 0;
+        }
+        .navbar-brand {
+            font-size: 1.5rem;
+        }
+        .auth-button {
+            color: peru;
+            margin-right: 10px;
+        }
+        .auth-button-logout {
+            border-color: peru;
+        }
+    </style>
+</head>
+<body>
+<header>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/">야구친구</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">홈</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/board">게시판</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/rank">순위</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/team">팀 정보</a>
+                    </li>
+                    <!-- 로그인/로그아웃 UI를 추가할 위치 -->
+                    <li class="nav-item d-flex align-items-center" id="auth-section"></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+</header>
+
+<footer>
+    <div class="container">
+        <p>&copy; 야구친구. 2024 한성공학경진대회 출품작</p>
+    </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const authSection = document.getElementById('auth-section');
+        const token = localStorage.getItem('token');
+        const username = localStorage.getItem('username');
+
+        if (token && username) {
+            // 로그인 상태일 때
+            authSection.innerHTML = `
+                    <span class="nav-link auth-button">${username} 님</span>
+                    <button class="btn btn-outline-warning auth-button auth-button-logout" id="logoutButton">로그아웃</button>
+                `;
+
+            document.getElementById('logoutButton').addEventListener('click', function() {
+                localStorage.removeItem('token');
+                localStorage.removeItem('username');
+                window.location.reload(); // 페이지를 새로고침하여 로그아웃 반영
+            });
+        } else {
+            // 로그인하지 않았을 때
+            authSection.innerHTML = `
+                    <a class="btn btn-outline-success" href="/login">로그인</a>
+                `;
+        }
+    });
+</script>
+</body>
+</html>

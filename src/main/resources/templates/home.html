@@ -56,7 +56,7 @@
       align-items: center;
     }
     .control-btn {
-      font-size: 2rem;
+      font-size: 1.3rem;
       cursor: pointer;
       border: none;
       background: none;
@@ -86,26 +86,32 @@
       vertical-align: middle;
       text-align: center;
     }
+
+    .auth-button {
+      color: peru;
+      margin-right: 10px;
+    }
+    .auth-button-logout {
+      border-color: peru;
+    }
   </style>
 </head>
 <body>
 <header>
   <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <div class="container">
-      <a class="navbar-brand" href="#">야구친구</a>
+      <a class="navbar-brand" href="/">야구친구</a>
+      <div class="nav-item align-items-center" id="auth-nickname"></div>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
       <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav ms-auto">
           <li class="nav-item">
-            <a class="nav-link" href="/home">홈</a>
+            <a class="nav-link" href="/">홈</a>
           </li>
           <li class="nav-item">
             <a class="nav-link" href="/board">게시판</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="/live">문자 중계</a>
           </li>
           <li class="nav-item">
             <a class="nav-link" href="/rank">순위</a>
@@ -113,6 +119,7 @@
           <li class="nav-item">
             <a class="nav-link" href="/team">팀 정보</a>
           </li>
+          <li class="nav-item d-flex align-items-center" id="auth-section"></li>
         </ul>
       </div>
     </div>
@@ -122,9 +129,9 @@
 <div class="container mt-4">
   <h1 class="text-center"><b>경기일정</b></h1>
   <div id="schedule-controls" class="d-flex justify-content-center mb-3">
-    <button id="prev-day" class="control-btn">&lt;</button>
+    <button id="prev-day" class="control-btn">◀</button>
     <h5 id="current-date" class="mx-2"></h5>
-    <button id="next-day" class="control-btn">&gt;</button>
+    <button id="next-day" class="control-btn">▶</button>
   </div>
   <div id="schedule-table">
   </div>
@@ -139,5 +146,6 @@
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.7/dist/umd/popper.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js"></script>
 <script src="/home_script.js"></script>
+<script src="/auth.js"></script>
 </body>
 </html>

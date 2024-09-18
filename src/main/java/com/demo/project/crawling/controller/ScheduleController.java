@@ -29,8 +29,12 @@ public class ScheduleController {
         return ResponseEntity.ok(service.getAllSchedule());
     }
 
-    @GetMapping("/today")
-    public ResponseEntity<List<schedule>> getTodaySchedule() {
-        return ResponseEntity.ok(service.getTodaySchedule());
+    @GetMapping("/match")
+    public ResponseEntity<List<schedule>> getScheduleByTeamsAndDate(
+            @RequestParam String teamName1,
+            @RequestParam String teamName2,
+            @RequestParam String matchDate) {
+        List<schedule> schedules = service.getScheduleByTeamsAndDate(teamName1, teamName2, matchDate);
+        return ResponseEntity.ok(schedules);
     }
 }
