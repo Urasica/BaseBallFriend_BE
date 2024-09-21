@@ -77,6 +77,9 @@
         .auth-button-logout {
             border-color: peru;
         }
+        #post-delete {
+            margin-left: 10px;
+        }
     </style>
 </head>
 <body>
@@ -127,6 +130,7 @@
             <p class="post-content" id="post-content"></p>
             <small class="post-info" id="post-creator"></small>
             <small class="post-info" id="post-createdAt"></small>
+            <small id="post-delete"></small>
         </div>
         <br>
         <div id="comments"></div>
@@ -168,7 +172,7 @@
                             </select>
                         </div>
                         <button type="button" class="btn btn-primary" onclick="createPost()">작성하기</button>
-                        &nbsp <small>로그인 해야 작성 가능합니다!</small>
+                        &nbsp <small id="post-check">로그인 해야 작성 가능합니다!</small>
                     </form>
                 </div>
             </div>
@@ -257,10 +261,19 @@
             .then(data => {
                 if (!data) return;
 
+                const authorId = localStorage.getItem('username');
                 document.getElementById('post-title').innerText = data.title;
                 document.getElementById('post-content').innerText = data.content;
                 document.getElementById('post-creator').innerText = `작성자: ${(data.authorId)}`;
                 document.getElementById('post-createdAt').innerText = `작성일: ${new Date(data.createdAt).toLocaleDateString('ko-KR')} ${new Date(data.createdAt).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' })}`;
+                if (data.authorId === authorId && document.getElementById("post-delete").innerHTML === "") {
+                    const deleteButton = document.createElement('button');
+                    deleteButton.className = 'btn btn-danger btn-sm';
+                    deleteButton.innerText = '삭제';
+                    deleteButton.onclick = () => deletePost(data.id);
+
+                    document.getElementById("post-delete").appendChild(deleteButton);
+                }
 
                 const commentsContainer = document.getElementById('comments');
                 commentsContainer.innerHTML = '';
@@ -274,7 +287,6 @@
                     </div>
                     `;
 
-                    const authorId = localStorage.getItem('username');
                     if (comment.authorId === authorId) {
                         const deleteButton = document.createElement('button');
                         deleteButton.className = 'btn btn-danger btn-sm';
@@ -407,6 +419,26 @@
                 }
             })
             .catch(error => console.error('Error deleting comment:', error));
+    }
+
+    function deletePost(postId) {
+        const token = localStorage.getItem('token');
+
+        fetch(`/api/boards/delete/${postId}`, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        })
+            .then(response => {
+                if (response.ok) {
+                    alert('게시글이 삭제되었습니다.');
+                    window.location.href = '/board';
+                } else {
+                    console.error('Error deleting post');
+                }
+            })
+            .catch(error => console.error('Error deleting post:', error));
     }
 
     function checkLoginStatus() {
