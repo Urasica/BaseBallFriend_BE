@@ -15,7 +15,6 @@ import java.util.Objects;
 public class schedule {
     @Id
     private String date;
-    @Id
     private String time;
     @Id
     private String team1;
@@ -30,12 +29,11 @@ public class schedule {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         schedule schedule = (schedule) o;
-        return Objects.equals(date, schedule.date) && Objects.equals(team1, schedule.team1)
-                && Objects.equals(time, schedule.time);
+        return Objects.equals(date, schedule.date) && Objects.equals(team1, schedule.team1);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(date, team1, time);
+        return Objects.hash(date, team1);
     }
 }
