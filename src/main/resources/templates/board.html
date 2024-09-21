@@ -35,19 +35,40 @@
             padding: 15px;
             border-bottom: 1px solid #ddd;
             cursor: pointer;
+            border-radius: 10px;
+            background-color: #f9f9f9;
+            margin-bottom: 10px;
         }
         .post-list .post-item:hover {
             background-color: #f1f1f1;
         }
-        .post-details {
-            margin-top: 20px;
+        .post-details-box {
+            border: 1px solid #ccc;
+            padding: 20px;
+            border-radius: 5px;
+            background-color: #fafafa;
+        }
+        .post-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        .post-content {
+            margin-top: 10px;
+            font-size: 1rem;
+            word-wrap: break-word;
+        }
+        .post-info {
+            margin-top: 10px;
+            color: #6c757d;
+            font-size: 0.875rem;
+        }
+        hr {
+            border-top: 1px solid #aaa;
+            margin: 20px 0;
         }
         .comment {
             border-top: 1px solid #ddd;
             padding: 10px 0;
-        }
-        .comment:last-child {
-            border-bottom: 1px solid #ddd;
         }
         .auth-button {
             color: peru;
@@ -89,18 +110,69 @@
 </header>
 
 <div class="container">
-    <div class="d-flex justify-content-around mt-3">
-        <button class="btn btn-secondary" onclick="loadPosts('자유게시판')">자유게시판</button>
-        <button class="btn btn-secondary" onclick="loadPosts('질문게시판')">질문게시판</button>
-        <button class="btn btn-secondary" onclick="loadPosts('중고거래게시판')">중고거래게시판</button>
+    <div class="d-flex justify-content-center mt-3">
+        <button class="btn btn-dark" onclick="loadPosts('자유게시판')">자유게시판</button>
+        <button class="btn btn-dark" onclick="loadPosts('질문게시판')" style="margin: 0 2px">질문게시판</button>
+        <button class="btn btn-dark" onclick="loadPosts('중고거래게시판')">중고거래게시판</button>
+    </div>
+    <div class="d-flex justify-content-between">
+        <button class="btn btn-secondary mt-3 btn-back" onclick="showPosts()" style="visibility: hidden">뒤로 가기</button>
+        <button class="btn btn-primary  mt-3" data-bs-toggle="modal" data-bs-target="#createPostModal">게시글 작성</button>
     </div>
     <div id="posts" class="post-list"></div>
     <div id="post-details" class="post-details" style="display: none;">
-        <button class="btn btn-secondary mb-3" onclick="showPosts()">뒤로 가기</button>
-        <h2 id="post-title"></h2>
-        <p id="post-content"></p>
-        <small id="post-createdAt"></small>
+        <br>
+        <div class="post-details-box">
+            <h2 class="post-title" id="post-title"></h2>
+            <p class="post-content" id="post-content"></p>
+            <small class="post-info" id="post-creator"></small>
+            <small class="post-info" id="post-createdAt"></small>
+        </div>
+        <br>
         <div id="comments"></div>
+        <div class="comment-form">
+            <textarea id="commentContent" class="form-control" rows="2" placeholder="댓글을 입력하세요..." required></textarea>
+            <button class="btn btn-primary mt-2">댓글 작성</button>
+        </div>
+    </div>
+    <div class="d-flex justify-content-between">
+        <button id="pre-page-btn" class="btn btn-outline-secondary mt-3 page-button" onclick="loadPrePage()" style="visibility: hidden; margin: 0 1px">◀</button>
+        <button id="next-page-btn" class="btn btn-outline-secondary mt-3 page-button" onclick="loadNextPage()" style="visibility: hidden; margin: 0 1px">▶</button>
+    </div>
+    <br>
+
+    <!-- Modal -->
+    <div class="modal fade" id="createPostModal" tabindex="-1" aria-labelledby="createPostLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="createPostLabel">새 게시글 작성</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="create-post-form">
+                        <div class="mb-3">
+                            <label for="postTitle" class="form-label">제목</label>
+                            <input type="text" class="form-control" id="postTitle" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="postContent" class="form-label">내용</label>
+                            <textarea class="form-control" id="postContent" rows="3" required></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="postType" class="form-label">게시판 선택</label>
+                            <select class="form-select" id="postType" required>
+                                <option value="자유게시판">자유게시판</option>
+                                <option value="질문게시판">질문게시판</option>
+                                <option value="중고거래게시판">중고거래게시판</option>
+                            </select>
+                        </div>
+                        <button type="button" class="btn btn-primary" onclick="createPost()">작성하기</button>
+                        &nbsp <small>로그인 해야 작성 가능합니다!</small>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -114,65 +186,247 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js"></script>
 <script>
     let postsCache = [];
+    let currentPage = 0;
+    let currentType = '';
 
-    function loadPosts(type) {
-        fetch(`/api/boards/getBoardsByPage?type=${type}&page=0`)
+    function loadPosts(type, page = 0) {
+        currentType = type;
+        currentPage = page;
+
+        fetch(`/api/boards/getBoardsByPage?type=${type}&page=${page}`)
             .then(response => response.json())
             .then(data => {
-                postsCache = data.content; // Cache posts data
+                postsCache = data.content;
                 const postsContainer = document.getElementById('posts');
-                postsContainer.innerHTML = ''; // Clear existing posts
-                document.getElementById('post-details').style.display = 'none'; // Hide post details
+                postsContainer.innerHTML = '';
+                document.getElementById('post-details').style.display = 'none';
 
                 data.content.forEach(post => {
+                    const truncatedContent = post.content.length > 20 ? post.content.substring(0, 20) + '...' : post.content;
+
                     const postElement = document.createElement('div');
                     postElement.className = 'post-item';
                     postElement.innerHTML = `
-                        <h5>${post.title}</h5>
-                        <p>${post.content}</p>
-                        <small>${new Date(post.createdAt).toLocaleString('ko-KR', { hour: '2-digit', minute: '2-digit' })}</small>
-                    `;
+                    <h5>${post.title}</h5>
+                    <p>
+                        <strong>작성자: ${post.authorId}</strong>
+                        <br>
+                        ${truncatedContent}
+                        <br>
+                        <small>작성일: ${new Date(post.createdAt).toLocaleDateString('ko-KR', { year: '2-digit', month: '2-digit', day: '2-digit' })}
+                        ${new Date(post.createdAt).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' })}</small>
+                        <br>
+                        <small>추천 수: ${post.upVote}</small>
+                    </p>
+                `;
                     postElement.onclick = () => showPostDetails(post.id);
                     postsContainer.appendChild(postElement);
                 });
+
+                const nextPageBtn = document.getElementById('next-page-btn');
+                nextPageBtn.style.visibility = (data.totalPages > currentPage + 1) ? 'visible' : 'hidden';
+
+                const prePageBtn = document.getElementById('pre-page-btn');
+                prePageBtn.style.visibility = (currentPage >= 1) ? 'visible' : 'hidden';
             })
             .catch(error => console.error('Error loading posts:', error));
     }
 
+
+    function loadNextPage() {
+        loadPosts(currentType, currentPage + 1);
+        document.getElementsByClassName('navbar')[0].scrollIntoView({ behavior: 'smooth' });
+    }
+    function loadPrePage() {
+        loadPosts(currentType, currentPage - 1);
+        document.getElementsByClassName('navbar')[0].scrollIntoView({ behavior: 'smooth' });
+    }
+
+    let currentPostId = null;
+
     function showPostDetails(id) {
-        const post = postsCache.find(p => p.id === id);
+        currentPostId = id;
+        fetch(`/api/boards/getBoardById/${id}`)
+            .then(response => {
+                if (response.status === 404) {
+                    console.error('Error: Resource not found');
+                    return;
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (!data) return;
 
-        if (post) {
-            fetch(`/api/boards/getBoardById/${id}`)
-                .then(response => response.json())
-                .then(details => {
-                    document.getElementById('post-title').textContent = details.title;
-                    document.getElementById('post-content').textContent = details.content;
-                    document.getElementById('post-createdAt').textContent = `작성일: ${new Date(details.createdAt).toLocaleString('ko-KR', { hour: '2-digit', minute: '2-digit' })}`;
+                document.getElementById('post-title').innerText = data.title;
+                document.getElementById('post-content').innerText = data.content;
+                document.getElementById('post-creator').innerText = `작성자: ${(data.authorId)}`;
+                document.getElementById('post-createdAt').innerText = `작성일: ${new Date(data.createdAt).toLocaleDateString('ko-KR')} ${new Date(data.createdAt).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' })}`;
 
-                    const commentsContainer = document.getElementById('comments');
-                    commentsContainer.innerHTML = '';
-                    details.comments.forEach(comment => {
-                        const commentElement = document.createElement('div');
-                        commentElement.className = 'comment';
-                        commentElement.innerHTML = `
-                            <p>${comment.content}</p>
-                            <small>${new Date(comment.createdAt).toLocaleString('ko-KR', { hour: '2-digit', minute: '2-digit' })} - ${comment.authorId}</small>
-                        `;
-                        commentsContainer.appendChild(commentElement);
-                    });
+                const commentsContainer = document.getElementById('comments');
+                commentsContainer.innerHTML = '';
+                data.comments.forEach(comment => {
+                    const commentElement = document.createElement('div');
+                    commentElement.className = 'comment d-flex justify-content-between align-items-center'; // Flexbox 적용
+                    commentElement.innerHTML = `
+                    <div>
+                        <p><strong>${comment.authorId}</strong> &nbsp&nbsp&nbsp ${comment.content}</p>
+                        <small>작성일: ${new Date(comment.createdAt).toLocaleDateString('ko-KR')} ${new Date(comment.createdAt).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' })}</small>
+                    </div>
+                    `;
 
-                    document.getElementById('posts').style.display = 'none'; // Hide posts list
-                    document.getElementById('post-details').style.display = 'block'; // Show post details
-                })
-                .catch(error => console.error('Error loading post details:', error));
-        }
+                    const authorId = localStorage.getItem('username');
+                    if (comment.authorId === authorId) {
+                        const deleteButton = document.createElement('button');
+                        deleteButton.className = 'btn btn-danger btn-sm';
+                        deleteButton.innerText = '삭제';
+                        deleteButton.onclick = () => deleteComment(comment.id);
+
+                        commentElement.appendChild(deleteButton);
+                    }
+                    commentsContainer.appendChild(commentElement);
+                });
+
+                document.getElementById('posts').style.display = 'none';
+                document.getElementsByClassName('page-button')[0].style.display = 'none';
+                document.getElementsByClassName('page-button')[1].style.display = 'none';
+                document.getElementsByClassName('btn-back')[0].style.visibility = 'visible';
+                document.getElementById('post-details').style.display = 'block';
+            })
+            .catch(error => console.error('Error loading post details:', error));
     }
 
     function showPosts() {
-        document.getElementById('post-details').style.display = 'none'; // Hide post details
-        document.getElementById('posts').style.display = 'block'; // Show posts list
+        document.getElementById('posts').style.display = 'block';
+        document.getElementsByClassName('page-button')[0].style.display = 'block';
+        document.getElementsByClassName('page-button')[1].style.display = 'block';
+        document.getElementsByClassName('btn-back')[0].style.visibility = 'hidden';
+        document.getElementById('post-details').style.display = 'none';
     }
+
+    function createPost() {
+        if (!checkLoginStatus()) {
+            return;
+        }
+
+        const title = document.getElementById('postTitle').value;
+        const content = document.getElementById('postContent').value;
+        const type = document.getElementById('postType').value;
+        const authorId = localStorage.getItem('username');
+        const token = localStorage.getItem('token');
+        const createdAt = new Date().toISOString();
+
+        const postData = {
+            id: 0,
+            title,
+            content,
+            authorId,
+            createdAt,
+            updatedAt: createdAt,
+            upVote: 0,
+            type,
+            commentCount: 0
+        };
+
+        fetch('/api/boards/create', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(postData)
+        })
+            .then(response => {
+                if (response.ok) {  // Check if the response status is 200-299
+                    return response.json();
+                } else {
+                    throw new Error(`Failed to create post: ${response.status} ${response.statusText}`);
+                }
+            })
+            .then(data => {
+                alert('게시글이 성공적으로 작성되었습니다!');
+                document.getElementById('create-post-form').reset();
+                loadPosts(type);
+                const modal = bootstrap.Modal.getInstance(document.getElementById('createPostModal'));
+                modal.hide();
+            })
+            .catch(error => {
+                console.error('Error creating post:', error);
+                alert('게시글 작성에 실패하였습니다.');
+            });
+    }
+
+    function createComment() {
+        if (!checkLoginStatus()) {
+            document.getElementById('commentContent').value = '';
+            return;
+        }
+
+        const content = document.getElementById('commentContent').value; // 여기서 내용을 가져옵니다.
+        console.log('댓글 내용:', content); // 로그 추가
+
+        // 나머지 코드는 그대로 유지
+        const authorId = localStorage.getItem('username');
+        const token = localStorage.getItem('token');
+
+        const commentData = {
+            content,
+            authorId
+        };
+
+        fetch(`/api/comments/create?boardId=${currentPostId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(commentData)
+        })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('commentContent').value = '';
+                showPostDetails(currentPostId);
+            })
+            .catch(error => console.error('댓글 작성 중 오류 발생:', error));
+    }
+
+    function deleteComment(commentId) {
+        const token = localStorage.getItem('token');
+
+        fetch(`/api/comments/delete/${commentId}`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        })
+            .then(response => {
+                if (response.ok) {
+                    alert('댓글이 삭제되었습니다.');
+                    showPostDetails(currentPostId); // Reload post details to refresh the comments
+                } else {
+                    console.error('Error deleting comment');
+                }
+            })
+            .catch(error => console.error('Error deleting comment:', error));
+    }
+
+    function checkLoginStatus() {
+        const username = localStorage.getItem('username');
+        const token = localStorage.getItem('token');
+
+        if (!username || !token) {
+            const confirmLogin = confirm('로그인 해야합니다. 로그인 페이지로 이동하시겠습니까?');
+            if (confirmLogin) {
+                window.location.href = '/login';
+            }
+            return false;
+        }
+
+        return true;
+    }
+
+    // Initialize the page
+    document.querySelector('.btn-primary.mt-2').addEventListener('click', createComment);
+    loadPosts('자유게시판')
 </script>
 <script src="/auth.js"></script>
 </body>
