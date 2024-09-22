@@ -80,6 +80,26 @@
         #post-delete {
             margin-left: 10px;
         }
+        .recommend-icon {
+            width: 20px;
+            height: 20px;
+            margin-bottom: 5px;
+        }
+        .likeBox{
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 4px 8px;
+            cursor: pointer;
+            margin-left: 10px;
+            transition: transform 0.2s ease;
+        }
+        .likeBox:active {
+            transform: scale(1.2);
+        }
+        #likeCount {
+            display: inline;
+            color: #0056b3;
+        }
     </style>
 </head>
 <body>
@@ -120,7 +140,7 @@
     </div>
     <div class="d-flex justify-content-between">
         <button class="btn btn-secondary mt-3 btn-back" onclick="showPosts()" style="visibility: hidden">뒤로 가기</button>
-        <button class="btn btn-primary  mt-3" data-bs-toggle="modal" data-bs-target="#createPostModal">게시글 작성</button>
+        <button class="btn btn-primary  mt-3" id="post-create-btn" data-bs-toggle="modal" data-bs-target="#createPostModal" onclick="checkLoginPost()">게시글 작성</button>
     </div>
     <div id="posts" class="post-list"></div>
     <div id="post-details" class="post-details" style="display: none;">
@@ -129,8 +149,13 @@
             <h2 class="post-title" id="post-title"></h2>
             <p class="post-content" id="post-content"></p>
             <small class="post-info" id="post-creator"></small>
+            <br>
             <small class="post-info" id="post-createdAt"></small>
-            <small id="post-delete"></small>
+            <button class="likeBox">
+                <img src="/image/추천.svg" width="20px" height="20px" class="recommend-icon"/>
+                <p id="likeCount">0</p>
+            </button>
+            <small id="post-delete" style="float: right;"></small>
         </div>
         <br>
         <div id="comments"></div>
@@ -172,7 +197,7 @@
                             </select>
                         </div>
                         <button type="button" class="btn btn-primary" onclick="createPost()">작성하기</button>
-                        &nbsp <small id="post-check">로그인 해야 작성 가능합니다!</small>
+                        &nbsp <small id="post-check">로그인한 사용자만 작성 가능합니다</small>
                     </form>
                 </div>
             </div>
@@ -253,7 +278,8 @@
         fetch(`/api/boards/getBoardById/${id}`)
             .then(response => {
                 if (response.status === 404) {
-                    console.error('Error: Resource not found');
+                    alert("게시글을 찾을 수 없습니다. 페이지를 다시 불러옵니다.");
+                    window.location.href = '/board';
                     return;
                 }
                 return response.json();
@@ -266,6 +292,11 @@
                 document.getElementById('post-content').innerText = data.content;
                 document.getElementById('post-creator').innerText = `작성자: ${(data.authorId)}`;
                 document.getElementById('post-createdAt').innerText = `작성일: ${new Date(data.createdAt).toLocaleDateString('ko-KR')} ${new Date(data.createdAt).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' })}`;
+                document.getElementById('likeCount').innerText = data.upVote;
+
+                const likeButton = document.querySelector('.likeBox');
+                likeButton.onclick = () => upvotePost(id);
+
                 if (data.authorId === authorId && document.getElementById("post-delete").innerHTML === "") {
                     const deleteButton = document.createElement('button');
                     deleteButton.className = 'btn btn-danger btn-sm';
@@ -301,6 +332,7 @@
                 document.getElementById('posts').style.display = 'none';
                 document.getElementsByClassName('page-button')[0].style.display = 'none';
                 document.getElementsByClassName('page-button')[1].style.display = 'none';
+                document.getElementById('post-create-btn').style.visibility = 'hidden';
                 document.getElementsByClassName('btn-back')[0].style.visibility = 'visible';
                 document.getElementById('post-details').style.display = 'block';
             })
@@ -312,7 +344,9 @@
         document.getElementsByClassName('page-button')[0].style.display = 'block';
         document.getElementsByClassName('page-button')[1].style.display = 'block';
         document.getElementsByClassName('btn-back')[0].style.visibility = 'hidden';
+        document.getElementById('post-create-btn').style.visibility = 'visible';
         document.getElementById('post-details').style.display = 'none';
+        loadPosts(currentType, currentPage)
     }
 
     function createPost() {
@@ -444,7 +478,6 @@
     function checkLoginStatus() {
         const username = localStorage.getItem('username');
         const token = localStorage.getItem('token');
-
         if (!username || !token) {
             const confirmLogin = confirm('로그인 해야합니다. 로그인 페이지로 이동하시겠습니까?');
             if (confirmLogin) {
@@ -452,11 +485,53 @@
             }
             return false;
         }
-
         return true;
     }
 
-    // Initialize the page
+    function checkLoginPost() {
+        const username = localStorage.getItem('username');
+        const token = localStorage.getItem('token');
+        if (!username || !token) {
+            document.getElementById('post-check').style.visibility = 'visible';
+        } else {
+            document.getElementById('post-check').style.visibility = 'hidden';
+        }
+        return true;
+    }
+
+    function upvotePost(postId) {
+        checkLoginStatus();
+
+        const userNickname = localStorage.getItem('username');
+        const token = localStorage.getItem('token');
+
+        fetch(`/api/boards/${postId}/upvote?userNickname=${userNickname}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            }
+        })
+            .then(response => {
+                if (response.ok) {
+                    return response.text(); // Read the response body as text
+                } else {
+                    throw new Error('추천에 실패했습니다. 다시 시도해주세요.');
+                }
+            })
+            .then(body => {
+                if (body === "Successfully upvote") {
+                    alert('게시글을 추천했습니다!');
+                } else if (body === "already upvote") {
+                    alert('이미 추천한 게시글입니다.');
+                }
+                showPostDetails(postId); // Refresh post details after the vote
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+    }
+
     document.querySelector('.btn-primary.mt-2').addEventListener('click', createComment);
     loadPosts('자유게시판')
 </script>

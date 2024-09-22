@@ -69,7 +69,7 @@ public class BoardService {
         boolean hasRecommended = recommendationRepository.findByBoardIdAndUserNickname(board.getId(), userNickname).isPresent();
 
         if (hasRecommended) {
-            throw new IllegalArgumentException("You have already upvoted this board.");
+            return null;
         }
 
         // 추천 수 증가

@@ -6,6 +6,7 @@ import com.demo.project.board.service.BoardService;
 import com.demo.project.board.service.CommentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
@@ -73,10 +74,12 @@ public class BoardController {
 
     @Transactional
     @PostMapping("/{id}/upvote")
-    public ResponseEntity<BoardDTO> upvoteBoard(@PathVariable Long id, @RequestParam String userNickname) {
+    public ResponseEntity<String> upvoteBoard(@PathVariable Long id, @RequestParam String userNickname) {
         Board board = boardService.upvoteBoard(id, userNickname);
-        BoardDTO boardDTO = boardService.convertToDTO(board);
-        return ResponseEntity.ok(boardDTO);
+        if (board == null) {
+            return ResponseEntity.status(HttpStatus.OK).body("already upvote");
+        }
+        return ResponseEntity.ok("Successfully upvote");
     }
 
     @GetMapping("/search")
