@@ -47,4 +47,9 @@ public class WebController {
     public String signup() {
         return "signup";
     }
+
+    @GetMapping("/control/admin/board")
+    public String controlBoard() {
+        return "board-admin";
+    }
 }

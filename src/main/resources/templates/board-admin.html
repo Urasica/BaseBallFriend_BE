@@ -133,10 +133,10 @@
 </header>
 
 <div class="container">
-    <div class="d-flex justify-content-center mt-3" id="board-select">
+    <div class="d-flex justify-content-center mt-3">
         <button class="btn btn-dark" onclick="loadPosts('자유게시판')">자유게시판</button>
         <button class="btn btn-dark" onclick="loadPosts('질문게시판')" style="margin: 0 2px">질문게시판</button>
-        <button class="btn btn-dark" onclick="loadPosts('중고거래게시판')">나눔게시판</button>
+        <button class="btn btn-dark" onclick="loadPosts('나눔게시판')">나눔게시판</button>
     </div>
     <div class="d-flex justify-content-between">
         <button class="btn btn-secondary mt-3 btn-back" onclick="showPosts()" style="visibility: hidden">뒤로 가기</button>
@@ -193,7 +193,7 @@
                             <select class="form-select" id="postType" required>
                                 <option value="자유게시판">자유게시판</option>
                                 <option value="질문게시판">질문게시판</option>
-                                <option value="중고거래게시판">나눔게시판</option>
+                                <option value="나눔게시판">나눔게시판</option>
                             </select>
                         </div>
                         <button type="button" class="btn btn-primary" onclick="createPost()">작성하기</button>
@@ -242,7 +242,8 @@
                         <br>
                         ${truncatedContent}
                         <br>
-                        <small>작성시간: ${formatRelativeTime(post.createdAt)}</small>
+                        <small>작성일: ${new Date(post.createdAt).toLocaleDateString('ko-KR', { year: '2-digit', month: '2-digit', day: '2-digit' })}
+                        ${new Date(post.createdAt).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' })}</small>
                         <br>
                         <small>추천 수: ${post.upVote}</small>
                     </p>
@@ -290,13 +291,13 @@
                 document.getElementById('post-title').innerText = data.title;
                 document.getElementById('post-content').innerText = data.content;
                 document.getElementById('post-creator').innerText = `작성자: ${(data.authorId)}`;
-                document.getElementById('post-createdAt').innerText = `작성시간: ${formatRelativeTime(data.createdAt)}`;
+                document.getElementById('post-createdAt').innerText = `작성일: ${new Date(data.createdAt).toLocaleDateString('ko-KR')} ${new Date(data.createdAt).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' })}`;
                 document.getElementById('likeCount').innerText = data.upVote;
 
                 const likeButton = document.querySelector('.likeBox');
                 likeButton.onclick = () => upvotePost(id);
 
-                if (data.authorId === authorId && document.getElementById("post-delete").innerHTML === "") {
+                if ('admin' === authorId && document.getElementById("post-delete").innerHTML === "") {
                     const deleteButton = document.createElement('button');
                     deleteButton.className = 'btn btn-danger btn-sm';
                     deleteButton.innerText = '삭제';
@@ -313,11 +314,11 @@
                     commentElement.innerHTML = `
                     <div>
                         <p><strong>${comment.authorId}</strong> &nbsp&nbsp&nbsp ${comment.content}</p>
-                        <small>작성시간: ${formatRelativeTime(comment.createdAt)}</small>
+                        <small>작성일: ${new Date(comment.createdAt).toLocaleDateString('ko-KR')} ${new Date(comment.createdAt).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' })}</small>
                     </div>
                     `;
 
-                    if (comment.authorId === authorId) {
+                    if ('admin' === authorId) {
                         const deleteButton = document.createElement('button');
                         deleteButton.className = 'btn btn-danger btn-sm';
                         deleteButton.innerText = '삭제';
@@ -334,7 +335,6 @@
                 document.getElementById('post-create-btn').style.visibility = 'hidden';
                 document.getElementsByClassName('btn-back')[0].style.visibility = 'visible';
                 document.getElementById('post-details').style.display = 'block';
-                document.getElementById('board-select').style.visibility = 'collapse';
             })
             .catch(error => console.error('Error loading post details:', error));
     }
@@ -346,7 +346,6 @@
         document.getElementsByClassName('btn-back')[0].style.visibility = 'hidden';
         document.getElementById('post-create-btn').style.visibility = 'visible';
         document.getElementById('post-details').style.display = 'none';
-        document.getElementById('board-select').style.visibility = 'visible';
         loadPosts(currentType, currentPage)
     }
 
@@ -531,28 +530,6 @@
             .catch(error => {
                 console.error('Error:', error);
             });
-    }
-
-    function formatRelativeTime(createdAt) {
-        const now = new Date();
-        const createdTime = new Date(createdAt);
-        const diffMs = now - createdTime; // Difference in milliseconds
-        const diffSeconds = Math.floor(diffMs / 1000);
-        const diffMinutes = Math.floor(diffSeconds / 60);
-        const diffHours = Math.floor(diffMinutes / 60);
-
-        if (diffSeconds < 60) {
-            return `${diffSeconds}초 전`;
-        } else if (diffMinutes < 60) {
-            return `${diffMinutes}분 전`;
-        } else if (diffHours < 24) {
-            return `${diffHours}시간 전`;
-        } else {
-            const year = createdTime.getFullYear().toString().slice(2);
-            const month = (createdTime.getMonth() + 1).toString().padStart(2, '0');
-            const day = createdTime.getDate().toString().padStart(2, '0');
-            return `${year}-${month}-${day}`;
-        }
     }
 
     document.querySelector('.btn-primary.mt-2').addEventListener('click', createComment);
